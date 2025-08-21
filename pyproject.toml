@@ -1,0 +1,23 @@
+[project]
+name = "entari-cli"
+version = "0.1.0"
+description = "Entari Command Line Tool, extract from arclet.entari.__main__"
+authors = [
+    {name = "RF-Tar-Railt", email = "rf_tar_railt@qq.com"},
+]
+dependencies = ["cli-lite>=0.11.0", "colorama>=0.4.6", "tomlkit>=0.13.3", "ruamel-yaml>=0.18.15", "python-dotenv>=1.1.1", "packaging>=25.0", "findpython>=0.7.0"]
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "MIT"}
+
+[project.optional-dependencies]
+virtualenv = [
+    "virtualenv>=20.34.0",
+]
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
