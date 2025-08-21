@@ -1,6 +1,6 @@
 [project]
 name = "entari-cli"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Entari Command Line Tool, extract from arclet.entari.__main__"
 authors = [
     {name = "RF-Tar-Railt", email = "rf_tar_railt@qq.com"},
@@ -14,6 +14,10 @@ license = {text = "MIT"}
 virtualenv = [
     "virtualenv>=20.34.0",
 ]
+
+[project.scripts]
+entari = "entari_cli.__main__:main"
+
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
@@ -21,3 +25,45 @@ build-backend = "pdm.backend"
 
 [tool.pdm]
 distribution = true
+
+[tool.pdm.version]
+source = "file"
+path = "src/entari_cli/__init__.py"
+
+[dependency-groups]
+dev = [
+    "isort==5.13.2",
+    "black>=25.1.0",
+    "ruff>=0.12.9",
+]
+
+[tool.black]
+line-length = 120
+target-version = ["py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+extend-exclude = '''
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 120
+skip_gitignore = true
+force_sort_within_sections = true
+extra_standard_library = ["typing_extensions"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+include = ["arclet/**.py"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "UP", "C", "T", "PYI", "PT", "Q"]
+ignore = ["C901", "T201", "E731", "E402", "PYI055"]
+
+[tool.pyright]
+pythonVersion = "3.9"
+pythonPlatform = "All"
+typeCheckingMode = "basic"
+
+[tool.pdm.scripts]
+format = { composite = ["isort ./src/entari_cli","black ./src/entari_cli","ruff check ./src/entari_cli/*"] }

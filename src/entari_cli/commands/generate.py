@@ -1,18 +1,16 @@
 from pathlib import Path
 
-from clilte import BasePlugin, PluginMetadata
 from arclet.alconna import Alconna, Arparma, CommandMeta
+from clilte import BasePlugin, PluginMetadata, register
 from clilte.core import Next
 
 from entari_cli.template import MAIN_SCRIPT
 
 
+@register("entari_cli.plugins")
 class GenerateMain(BasePlugin):
     def init(self):
-        return Alconna(
-            "gen_main",
-            meta=CommandMeta("生成一个 Entari 主程序文件")
-        )
+        return Alconna("gen_main", meta=CommandMeta("生成一个 Entari 主程序文件"))
 
     def meta(self) -> PluginMetadata:
         return PluginMetadata(

@@ -1,13 +1,14 @@
 from importlib.util import find_spec
 
-from clilte import BasePlugin, PluginMetadata
-from arclet.alconna import Alconna, Arparma, CommandMeta, Option, Args
+from arclet.alconna import Alconna, Args, Arparma, CommandMeta, Option
+from clilte import BasePlugin, PluginMetadata, register
 from clilte.core import Next
 from colorama import Fore
 
 from entari_cli.config import EntariConfig
 
 
+@register("entari_cli.plugins")
 class AddPlugin(BasePlugin):
     def init(self):
         return Alconna(
@@ -16,7 +17,7 @@ class AddPlugin(BasePlugin):
             Option("-D|--disabled", help_text="是否插件初始禁用"),
             Option("-O|--optional", help_text="是否仅存储插件配置而不加载插件"),
             Option("-p|--priority", Args["num/", int], help_text="插件加载优先级"),
-            meta=CommandMeta("添加一个 Entari 插件到配置文件中")
+            meta=CommandMeta("添加一个 Entari 插件到配置文件中"),
         )
 
     def meta(self) -> PluginMetadata:

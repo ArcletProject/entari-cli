@@ -1,24 +1,23 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 import dataclasses as dc
+from functools import cached_property
+from pathlib import Path
 import shutil
 import subprocess
 import sys
-from collections.abc import Iterable
-from functools import cached_property
-from pathlib import Path
-from typing import Optional
 
 from colorama import Fore
 from findpython import BaseProvider, PythonVersion
 
-from entari_cli.utils import get_venv_like_prefix
 from entari_cli.consts import WINDOWS
+from entari_cli.utils import get_venv_like_prefix
 
 BIN_DIR = "Scripts" if WINDOWS else "bin"
 
 
-def get_venv_python(cwd: Optional[Path] = None) -> tuple[Path, Path]:
+def get_venv_python(cwd: Path | None = None) -> tuple[Path, Path]:
     """Get the interpreter path inside the given venv."""
     cwd = (cwd or Path.cwd()).resolve()
     suffix = ".exe" if WINDOWS else ""
@@ -116,7 +115,9 @@ class VenvProvider(BaseProvider):
     def find_pythons(self) -> Iterable[PythonVersion]:
         in_project_venv = get_in_project_venv(self.cwd)
         if in_project_venv is not None:
-            yield PythonVersion(in_project_venv.interpreter, _interpreter=in_project_venv.interpreter, keep_symlink=True)
+            yield PythonVersion(
+                in_project_venv.interpreter, _interpreter=in_project_venv.interpreter, keep_symlink=True
+            )
 
 
 try:
@@ -142,7 +143,7 @@ def _ensure_clean(location: Path, force: bool = False) -> None:
                 child.unlink()
 
 
-def create_virtualenv(venv_dir: Path, base_python: str, prompt: Optional[str] = None):
+def create_virtualenv(venv_dir: Path, base_python: str, prompt: str | None = None):
     _ensure_clean(venv_dir, force=True)
     prompt_option = (f"--prompt={prompt}",) if prompt else ()
     if virtualenv:

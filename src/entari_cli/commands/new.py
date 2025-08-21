@@ -1,20 +1,27 @@
 from importlib.util import find_spec
 from pathlib import Path
+import sys
 
-from clilte import BasePlugin, PluginMetadata
-from arclet.alconna import Alconna, Arparma, CommandMeta, Args, Option, MultiVar
+from arclet.alconna import Alconna, Args, Arparma, CommandMeta, MultiVar, Option
+from clilte import BasePlugin, PluginMetadata, register
 from clilte.core import Next
 from colorama import Fore
 
 from entari_cli.config import EntariConfig
 from entari_cli.process import call_pip
-from entari_cli.project import validate_project_name, get_user_email_from_git, PYTHON_VERSION, sanitize_project_name
+from entari_cli.project import PYTHON_VERSION, get_user_email_from_git, sanitize_project_name, validate_project_name
 from entari_cli.python import PythonInfo, iter_interpreters
-from entari_cli.template import PLUGIN_DEFAULT_TEMPLATE, PLUGIN_STATIC_TEMPLATE, PLUGIN_PROJECT_TEMPLATE, README_TEMPLATE
+from entari_cli.template import (
+    PLUGIN_DEFAULT_TEMPLATE,
+    PLUGIN_PROJECT_TEMPLATE,
+    PLUGIN_STATIC_TEMPLATE,
+    README_TEMPLATE,
+)
 from entari_cli.utils import is_conda_base_python
-from entari_cli.venv import get_venv_python, create_virtualenv
+from entari_cli.venv import create_virtualenv, get_venv_like_prefix, get_venv_python
 
 
+@register("entari_cli.plugins")
 class NewPlugin(BasePlugin):
     def init(self):
         return Alconna(
@@ -28,7 +35,7 @@ class NewPlugin(BasePlugin):
             Option("-p|--priority", Args["num/", int], help_text="插件加载优先级"),
             Option("-py|--python", Args["path/", str], help_text="指定 Python 解释器路径"),
             Option("--pip-args", Args["params/", MultiVar(str)], help_text="传递给 pip 的额外参数"),
-            meta=CommandMeta("新建一个 Entari 插件")
+            meta=CommandMeta("新建一个 Entari 插件"),
         )
 
     def meta(self) -> PluginMetadata:
@@ -52,9 +59,7 @@ class NewPlugin(BasePlugin):
             return py_version.valid
 
         python = python.strip()
-        found_interpreters = list(
-            dict.fromkeys(iter_interpreters(cwd, python, filter_func=version_matcher))
-        )
+        found_interpreters = list(dict.fromkeys(iter_interpreters(cwd, python, filter_func=version_matcher)))
         if not found_interpreters:
             raise ValueError("No Python interpreter found.")
 
@@ -80,14 +85,15 @@ class NewPlugin(BasePlugin):
             is_application = result.find("new.application")
             python = result.query[str]("new.python.path", "")
             if not is_application:
-                ans = self.ask("Is this an plugin project?", "(Y/n)").strip().lower()
+                ans = self.ask("Is this an plugin project?", "Y/n").strip().lower()
                 is_application = ans in {"no", "false", "f", "0", "n", "n/a", "none", "nope", "nah"}
             if not is_application:
                 args = result.query[tuple[str, ...]]("new.pip_args.params", ())
-                python_info = self.ensure_python(python)
-                ret_code = call_pip(str(python_info.executable), "install", "arclet-entari[full]", *args)
-                if ret_code != 0:
-                    return f"{Fore.RED}Failed to install arclet-entari[full] with pip, please check the output above.{Fore.RESET}"
+                if get_venv_like_prefix(sys.executable)[0] is None:
+                    python_info = self.ensure_python(python)
+                    ret_code = call_pip(str(python_info.executable), "install", "arclet-entari[full]", *args)
+                    if ret_code != 0:
+                        return f"{Fore.RED}Failed to install arclet-entari[full] with pip, please check the output above.{Fore.RESET}"
             name = result.query[str]("new.name")
             if not name:
                 name = self.ask("Plugin name")
@@ -97,7 +103,7 @@ class NewPlugin(BasePlugin):
             if not proj_name.lower().startswith("entari-plugin-") and not is_application:
                 print(f"{Fore.RED}Plugin will be corrected to 'entari-plugin-{proj_name}' automatically.")
                 print(
-                    f"{Fore.YELLOW}If you want to keep the name, please use option {Fore.MAGENTA}-A|--application.{Fore.RESET}"
+                    f"{Fore.YELLOW}If you want to keep the name, please use option {Fore.MAGENTA}`-A|--application`.{Fore.RESET}"
                 )
                 proj_name = f"entari-plugin-{proj_name}"
             file_name = proj_name.replace("-", "_")
@@ -115,11 +121,11 @@ class NewPlugin(BasePlugin):
                 licence = ""
             is_file = result.find("new.file")
             if not is_file:
-                ans = self.ask("Is this a single file plugin?", "(Y/n)").strip().lower()
+                ans = self.ask("Is this a single file plugin?", "Y/n").strip().lower()
                 is_file = ans in {"yes", "true", "t", "1", "y", "yea", "yeah", "yep", "sure", "ok", "okay", "", "y/n"}
             is_static = result.find("new.static")
             if not is_static:
-                ans = self.ask("Is this a disposable plugin?", "(Y/n)").strip().lower()
+                ans = self.ask("Is this a disposable plugin?", "Y/n").strip().lower()
                 is_static = ans in {"no", "false", "f", "0", "n", "n/a", "none", "nope", "nah"}
             if proj_name.startswith("entari-plugin-") and find_spec(file_name):
                 return f"{Fore.RED}'{proj_name}' already installed, please use another name.{Fore.RESET}"
@@ -160,7 +166,11 @@ class NewPlugin(BasePlugin):
                     with readme_path.open("w+", encoding="utf-8") as f:
                         f.write(README_TEMPLATE.format(name=proj_name, description=description))
             cfg = EntariConfig.load(result.query[str]("cfg_path.path", None))
-            if file_name in cfg.plugin or f"entari_plugin_{file_name}" in cfg.plugin or file_name.removeprefix("entari_plugin_") in cfg.plugin:
+            if (
+                file_name in cfg.plugin
+                or f"entari_plugin_{file_name}" in cfg.plugin
+                or file_name.removeprefix("entari_plugin_") in cfg.plugin
+            ):
                 return f"{Fore.RED}Plugin {file_name} already exists in the configuration file.{Fore.RESET}"
             cfg.plugin[file_name] = {}
             if result.find("new.disabled"):

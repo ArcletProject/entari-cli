@@ -1,24 +1,24 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
+from functools import cached_property
 import json
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import sys
-from collections.abc import Iterable
-from functools import cached_property
-from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Callable
+from typing import TYPE_CHECKING, Callable
 
 from colorama import Fore
 from packaging.version import InvalidVersion, Version
 
-from entari_cli.consts import WINDOWS_DEFAULT_PYTHON, WINDOWS, DEFAULT_PYTHON
+from entari_cli.consts import DEFAULT_PYTHON, WINDOWS, WINDOWS_DEFAULT_PYTHON
 from entari_cli.utils import find_python_in_path
 from entari_cli.venv import VirtualEnv, get_venv_python
 
 if TYPE_CHECKING:
-    from findpython import PythonVersion, Finder
+    from findpython import Finder, PythonVersion
 
 
 PYENV_ROOT = Path.expanduser(Path(os.getenv("PYENV_ROOT", "~/.pyenv")))
@@ -31,8 +31,7 @@ def _get_env_python() -> str:
 
     for python in python_to_try:
         proc = subprocess.Popen(
-            f"{python} -W ignore -c "
-            '"import sys, json; print(json.dumps(sys.executable))"',
+            f"{python} -W ignore -c " '"import sys, json; print(json.dumps(sys.executable))"',
             shell=True,
             stdout=subprocess.PIPE,
         )
@@ -53,7 +52,7 @@ def _get_env_python() -> str:
 _path_venv_cache: dict[Path, str] = {}
 
 
-def get_default_python(cwd: Optional[Path] = None) -> str:
+def get_default_python(cwd: Path | None = None) -> str:
     cwd = cwd or Path.cwd().resolve()
 
     if cwd in _path_venv_cache:
@@ -90,7 +89,7 @@ class PythonInfo:
     def __hash__(self) -> int:
         return hash(self._py_ver)
 
-    def __eq__(self, o: Any) -> bool:
+    def __eq__(self, o: object) -> bool:
         if not isinstance(o, PythonInfo):
             return False
         return self.path == o.path
@@ -152,7 +151,8 @@ class PythonInfo:
 
 
 def get_python_finder(cwd: Path, search_venv: bool = True) -> Finder:
-    from findpython import Finder, ALL_PROVIDERS
+    from findpython import ALL_PROVIDERS, Finder
+
     from entari_cli.venv import VenvProvider
 
     providers: list[str] = ["venv", *ALL_PROVIDERS.keys()]
@@ -238,5 +238,5 @@ def iter_interpreters(
         return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(get_default_python(Path.cwd().parent.parent))

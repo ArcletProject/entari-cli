@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from clilte import BasePlugin, PluginMetadata
-from arclet.alconna import Alconna, Args, Arparma, Option, CommandMeta
+from arclet.alconna import Alconna, Args, Arparma, CommandMeta, Option
+from clilte import BasePlugin, PluginMetadata, register
 from clilte.core import Next
 
 from entari_cli.process import run_process
@@ -9,12 +9,13 @@ from entari_cli.python import get_default_python
 from entari_cli.template import MAIN_SCRIPT
 
 
+@register("entari_cli.plugins")
 class RunApplication(BasePlugin):
     def init(self):
         return Alconna(
             "run",
             Option("-py|--python", Args["path/", str], help_text="自定义 Python 解释器路径"),
-            meta=CommandMeta("运行 Entari")
+            meta=CommandMeta("运行 Entari"),
         )
 
     def meta(self) -> PluginMetadata:
