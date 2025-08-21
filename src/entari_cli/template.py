@@ -10,7 +10,9 @@ JSON_BASIC_TEMPLATE = """\
       }
     ],
     "ignore_self_message": true,
-    "log_level": "info",
+    "log": {
+        "level": "info"
+    },
     "prefix": ["/"]
   },
 """
@@ -58,7 +60,8 @@ basic:
       port: 5140
       path: "satori"
   ignore_self_message: true
-  log_level: "info"
+  log:
+    level: "info"
   prefix: ["/"]
 """
 

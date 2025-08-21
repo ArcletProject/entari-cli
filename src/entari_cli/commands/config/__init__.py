@@ -59,9 +59,7 @@ class ConfigPlugin(BasePlugin):
             is_dev = result.find("config.new.dev")
             names = result.query[tuple[str, ...]]("config.new.plugins.names", ())
             if (path := result.query[str]("cfg_path.path", None)) is None:
-                _path = Path.cwd() / ".entari.json"
-                if (Path.cwd() / "entari.yml").exists():
-                    _path = Path.cwd() / "entari.yml"
+                _path = Path.cwd() / "entari.yml"
             else:
                 _path = Path(path)
             if _path.exists():

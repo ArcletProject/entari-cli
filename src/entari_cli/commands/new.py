@@ -90,8 +90,12 @@ class NewPlugin(BasePlugin):
             if not is_application:
                 args = result.query[tuple[str, ...]]("new.pip_args.params", ())
                 if get_venv_like_prefix(sys.executable)[0] is None:
-                    python_info = self.ensure_python(python)
-                    ret_code = call_pip(str(python_info.executable), "install", "arclet-entari[full]", *args)
+                    python_path = self.ensure_python(python).executable
+                    ret_code = call_pip(str(python_path), "install", "arclet-entari[full]", *args)
+                    if ret_code != 0:
+                        return f"{Fore.RED}Failed to install arclet-entari[full] with pip, please check the output above.{Fore.RESET}"
+                elif not find_spec("arclet.entari"):
+                    ret_code = call_pip(sys.executable, "install", "arclet-entari[full]", *args)
                     if ret_code != 0:
                         return f"{Fore.RED}Failed to install arclet-entari[full] with pip, please check the output above.{Fore.RESET}"
             name = result.query[str]("new.name")
