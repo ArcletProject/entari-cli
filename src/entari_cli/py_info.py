@@ -241,8 +241,8 @@ def iter_interpreters(
         return
 
 
-def check_package_installed(package: str, cwd: Path | None = None) -> bool:
-    executable = get_default_python(cwd)
+def check_package_installed(package: str, python_path: str | None = None, cwd: Path | None = None) -> bool:
+    executable = python_path or get_default_python(cwd)
     proc = subprocess.Popen(
         f"{executable} -W ignore -c "
         f"\"import json, importlib.util; print(json.dumps(importlib.util.find_spec('{package}') is not None))\"",

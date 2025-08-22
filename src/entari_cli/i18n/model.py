@@ -9,9 +9,15 @@ class EntariCliCommandsInitOptions:
     pip_args: LangItem = LangItem("entari_cli", "commands.init.options.pip_args")
 
 
+class EntariCliCommandsInitMessages:
+    success: LangItem = LangItem("entari_cli", "commands.init.messages.success")
+    initialized: LangItem = LangItem("entari_cli", "commands.init.messages.initialized")
+
+
 class EntariCliCommandsInit:
     description: LangItem = LangItem("entari_cli", "commands.init.description")
     options = EntariCliCommandsInitOptions
+    messages = EntariCliCommandsInitMessages
 
 
 class EntariCliCommandsAddOptions:
@@ -155,6 +161,7 @@ class EntariCliProject:
 class EntariCliVenv:
     use: LangItem = LangItem("entari_cli", "venv.use")
     create: LangItem = LangItem("entari_cli", "venv.create")
+    ask_create: LangItem = LangItem("entari_cli", "venv.ask_create")
 
 
 class EntariCli:

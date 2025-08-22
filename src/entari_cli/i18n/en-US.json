@@ -7,6 +7,10 @@
         "options": {
           "python": "Specify the Python interpreter path",
           "pip_args": "Extra parameters passed to pip"
+        },
+        "messages": {
+          "success": "Entari environment initialized successfully.",
+          "initialized": "Entari environment already initialized."
         }
       },
       "add": {
@@ -109,7 +113,8 @@
     },
     "venv": {
       "use": "Using virtual environment Python: {venv_python}",
-      "create": "Virtual environment created at {venv_python}"
+      "create": "Virtual environment created at {venv_python}",
+      "ask_create": "Create a new virtual environment?"
     }
   }
 }

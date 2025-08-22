@@ -43,6 +43,24 @@
                       "type": "string"
                     }
                   }
+                },
+                "messages": {
+                  "title": "Messages",
+                  "description": "Scope 'messages' of lang item",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "success": {
+                      "title": "success",
+                      "description": "value of lang item type 'success'",
+                      "type": "string"
+                    },
+                    "initialized": {
+                      "title": "initialized",
+                      "description": "value of lang item type 'initialized'",
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -507,6 +525,11 @@
             "create": {
               "title": "create",
               "description": "value of lang item type 'create'",
+              "type": "string"
+            },
+            "ask_create": {
+              "title": "ask_create",
+              "description": "value of lang item type 'ask_create'",
               "type": "string"
             }
           }

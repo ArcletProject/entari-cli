@@ -60,13 +60,28 @@ class NewPlugin(BasePlugin):
                 is_application = ans in {"no", "false", "f", "0", "n", "n/a", "none", "nope", "nah"}
             if not is_application:
                 args = result.query[tuple[str, ...]]("new.pip_args.params", ())
+                python_path = sys.executable
                 if get_venv_like_prefix(sys.executable)[0] is None:
-                    python_path = ensure_python(Path.cwd(), python).executable
-                    ret_code = call_pip(str(python_path), "install", "arclet-entari[full]", *args)
-                    if ret_code != 0:
-                        return f"{Fore.RED}{i18n_.project.install_failed()}{Fore.RESET}"
-                elif not check_package_installed("arclet.entari"):
-                    ret_code = call_pip(sys.executable, "install", "arclet-entari[full]", *args)
+                    ans = ask(i18n_.venv.ask_create(), "Y/n").strip().lower()
+                    use_venv = ans in {
+                        "yes",
+                        "true",
+                        "t",
+                        "1",
+                        "y",
+                        "yea",
+                        "yeah",
+                        "yep",
+                        "sure",
+                        "ok",
+                        "okay",
+                        "",
+                        "y/n",
+                    }
+                    if use_venv:
+                        python_path = str(ensure_python(Path.cwd(), python).executable)
+                if not check_package_installed("arclet.entari", python_path):
+                    ret_code = call_pip(python_path, "install", "arclet-entari[full]", *args)
                     if ret_code != 0:
                         return f"{Fore.RED}{i18n_.project.install_failed()}{Fore.RESET}"
             name = result.query[str]("new.name")
@@ -155,8 +170,7 @@ class NewPlugin(BasePlugin):
                 cfg.plugin[file_name]["$optional"] = True
             if result.find("new.priority"):
                 cfg.plugin[file_name]["priority"] = result.query[int]("new.priority.num", 16)
-            if is_application:
-                cfg.basic.setdefault("external_dirs", []).append("plugins")
+            cfg.basic.setdefault("external_dirs", []).append("plugins" if is_application else "src")
             cfg.save()
             return f"{Fore.GREEN}{i18n_.commands.new.messages.created(path=str(path))}{Fore.RESET}"
         return next_(None)

@@ -120,7 +120,7 @@ PLUGIN_PROJECT_TEMPLATE = """\
 name = "{name}"
 version = "{version}"
 description = "{description}"
-author = [
+authors = [
     {author}
 ]
 dependencies = [

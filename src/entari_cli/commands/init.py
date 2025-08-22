@@ -10,6 +10,7 @@ from entari_cli import i18n_
 from entari_cli.process import call_pip
 from entari_cli.project import ensure_python
 from entari_cli.py_info import check_package_installed
+from entari_cli.utils import ask
 from entari_cli.venv import get_venv_like_prefix
 
 
@@ -34,16 +35,18 @@ class InitEnv(BasePlugin):
         if result.find("init"):
             python = result.query[str]("new.python.path", "")
             args = result.query[tuple[str, ...]]("new.pip_args.params", ())
+
+            python_path = sys.executable
             if get_venv_like_prefix(sys.executable)[0] is None:
-                python_path = ensure_python(Path.cwd(), python).executable
-                ret_code = call_pip(str(python_path), "install", "arclet-entari[full]", *args)
-                if ret_code != 0:
-                    return f"{Fore.RED}{i18n_.project.install_failed()}{Fore.RESET}"
-            elif check_package_installed("arclet.entari"):
-                return "Environment already initialized."
+                ans = ask(i18n_.venv.ask_create(), "Y/n").strip().lower()
+                use_venv = ans in {"yes", "true", "t", "1", "y", "yea", "yeah", "yep", "sure", "ok", "okay", "", "y/n"}
+                if use_venv:
+                    python_path = str(ensure_python(Path.cwd(), python).executable)
+            if check_package_installed("arclet.entari", python_path):
+                return f"{Fore.YELLOW}{i18n_.commands.init.messages.initialized()}{Fore.RESET}"
             else:
                 ret_code = call_pip(sys.executable, "install", "arclet-entari[full]", *args)
                 if ret_code != 0:
                     return f"{Fore.RED}{i18n_.project.install_failed()}{Fore.RESET}"
-            return "Environment initialized successfully."
+            return f"{Fore.GREEN}{i18n_.commands.init.messages.success()}{Fore.RESET}"
         return next_(None)

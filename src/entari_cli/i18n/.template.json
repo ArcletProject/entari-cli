@@ -17,6 +17,13 @@
                     "python",
                     "pip_args"
                   ]
+                },
+                {
+                  "subtype": "messages",
+                  "types": [
+                    "success",
+                    "initialized"
+                  ]
                 }
               ]
             },
@@ -183,7 +190,8 @@
           "subtype": "venv",
           "types": [
             "use",
-            "create"
+            "create",
+            "ask_create"
           ]
         }
       ]

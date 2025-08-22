@@ -7,6 +7,10 @@
         "options": {
           "python": "指定 Python 解释器路径",
           "pip_args": "传递给 pip 的额外参数"
+        },
+        "messages": {
+          "success": "Entari 环境初始化成功。",
+          "initialized": "Entari 环境已初始化。"
         }
       },
       "add": {
@@ -109,7 +113,8 @@
     },
     "venv": {
       "use": "使用虚拟环境中的 Python：{venv_python}",
-      "create": "虚拟环境将创建在 {venv_python}"
+      "create": "虚拟环境将创建在 {venv_python}",
+      "ask_create": "是否创建新的虚拟环境？"
     }
   }
 }
