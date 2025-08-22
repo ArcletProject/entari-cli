@@ -2,16 +2,18 @@ from arclet.alconna import Args, Arparma, Option
 from clilte import BasePlugin, PluginMetadata, register
 from clilte.core import Next
 
+from entari_cli import i18n_
+
 
 @register("entari_cli.plugins")
 class ConfigPath(BasePlugin):
     def init(self):
-        return Option("-c|--config", Args["path/", str], help_text="指定配置文件路径", dest="cfg_path"), True
+        return Option("-c|--config", Args["path/", str], help_text=i18n_.commands.config.path(), dest="cfg_path"), True
 
     def meta(self) -> PluginMetadata:
         return PluginMetadata(
             name="cfg_path",
-            description="指定配置文件路径",
+            description=i18n_.commands.config.path(),
             version="0.1.0",
         )
 

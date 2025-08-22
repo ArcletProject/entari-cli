@@ -1,0 +1,106 @@
+{
+  "$schema": ".lang.schema.json",
+  "entari_cli": {
+    "commands": {
+      "add": {
+        "description": "添加一个 Entari 插件到配置文件中",
+        "options": {
+          "disabled": "是否插件初始禁用",
+          "optional": "是否仅存储插件配置而不加载插件",
+          "priority": "插件加载优先级"
+        },
+        "prompts": {
+          "name": "请指定插件名称：",
+          "failed": "{name} 未找到。您应该安装它，或运行 {cmd}",
+          "success": "插件 {name} 已成功添加到配置文件中。"
+        }
+      },
+      "new": {
+        "description": "新建一个 Entari 插件",
+        "options": {
+          "static": "是否为静态插件",
+          "application": "是否为应用插件",
+          "file": "是否为单文件插件",
+          "disabled": "是否插件初始禁用",
+          "optional": "是否仅存储插件配置而不加载插件",
+          "priority": "插件加载优先级",
+          "python": "指定 Python 解释器路径",
+          "pip_args": "传递给 pip 的额外参数"
+        },
+        "prompts": {
+          "is_plugin_project": "这是一个插件项目吗？",
+          "plugin_name": "插件名称",
+          "plugin_version": "插件版本",
+          "plugin_description": "插件描述",
+          "plugin_author_name": "插件作者姓名",
+          "plugin_author_email": "插件作者电子邮件",
+          "python_requires": "Python 版本 ('*' 表示任意版本)",
+          "license": "许可证 (SPDX 名称)",
+          "is_single_file": "这是一个单文件插件吗？",
+          "is_disposable": "这是可重载的插件吗？",
+          "select_python": "请输入 Python 解释器路径以供使用",
+          "please_select": "请选择"
+        },
+        "messages": {
+          "invalid": "插件名称无效：{name}",
+          "corrected": "插件名将自动更正为 'entari-plugin-{name}'。",
+          "keep": "如果您想保留名称，请使用选项 {opt}。",
+          "installed": "'{name}' 已安装，请使用其他名称。",
+          "exists": "插件 {name} 已存在于配置文件中。",
+          "created": "插件将创建于 {path}。",
+          "install_failed": "无法使用 pip 安装 arclet-entari[full]，请检查输出。",
+          "no_python_found": "未找到 Python 解释器。",
+          "invalid_selection": "选择无效。"
+        }
+      },
+      "remove": {
+        "description": "从配置文件中移除一个 Entari 插件",
+        "prompts": {
+          "name": "请指定插件名称：",
+          "success": "插件 {name} 已成功从配置文件中移除。"
+        }
+      },
+      "run": {
+        "description": "运行 Entari",
+        "options": {
+          "python": "自定义 Python 解释器路径"
+        }
+      },
+      "generate": {
+        "description": "生成一个 Entari 主程序文件",
+        "messages": {
+          "generated": "主程序文件已生成在 {file}"
+        }
+      },
+      "version": {
+        "description": "显示 CLI 版本并退出"
+      },
+      "config": {
+        "path": "指定配置文件路径",
+        "description": "配置文件操作",
+        "options": {
+          "new": "新建一个 Entari 配置文件",
+          "current": "查看当前配置文件",
+          "dev": "是否生成开发用配置文件"
+        },
+        "messages": {
+          "exist": "{path} 已经存在",
+          "created": "配置文件已创建在 {path}",
+          "not_supported": "不支持的配置文件扩展名：{suffix}",
+          "current": "当前配置文件：\n{path}"
+        }
+      }
+    },
+    "errors": {
+      "python_not_found": "找不到有效的 Python 解释器。",
+      "invalid_project_name": "项目名称无效：{name}"
+    },
+    "config": {
+      "ext_failed": "无法加载配置扩展 '{ext_mod}'： {e}"
+    },
+    "venv": {
+      "use": "使用虚拟环境中的 Python：{venv_python}",
+      "create": "虚拟环境将创建在 {venv_python}"
+    }
+  }
+}

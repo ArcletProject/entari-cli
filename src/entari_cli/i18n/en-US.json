@@ -1,0 +1,106 @@
+{
+  "$schema": ".lang.schema.json",
+  "entari_cli": {
+    "commands": {
+      "add": {
+        "description": "Add an Entari plugin to the configuration file",
+        "options": {
+          "disabled": "Whether the plugin is initially disabled",
+          "optional": "Whether to store only the plugin configuration without loading the plugin",
+          "priority": "Plugin loading priority"
+        },
+        "prompts": {
+          "name": "Please specify a plugin name: ",
+          "failed": "{name} not found. You should installed it, or run {cmd}",
+          "success": "Plugin {name} added to configuration file successfully."
+        }
+      },
+      "new": {
+        "description": "Create a new Entari plugin",
+        "options": {
+          "static": "Whether it's a static plugin",
+          "application": "Whether it is an application plugin",
+          "file": "Whether it is a single-file plugin",
+          "disabled": "Whether the plugin is initially disabled",
+          "optional": "Whether to store only the plugin configuration without loading the plugin",
+          "priority": "Plugin loading priority",
+          "python": "Specify the Python interpreter path",
+          "pip_args": "Extra parameters passed to pip"
+        },
+        "prompts": {
+          "is_plugin_project": "Is this an plugin project?",
+          "plugin_name": "Plugin name",
+          "plugin_version": "Plugin version",
+          "plugin_description": "Plugin description",
+          "plugin_author_name": "Plugin author name",
+          "plugin_author_email": "Plugin author email",
+          "python_requires": "Python requires ('*' to allow any)",
+          "license": "License (SPDX name)",
+          "is_single_file": "Is this a single file plugin?",
+          "is_disposable": "Is this a disposable plugin?",
+          "select_python": "Please enter the Python interpreter to use",
+          "please_select": "Please select"
+        },
+        "messages": {
+          "invalid": "Invalid plugin name: {name}",
+          "corrected": "Plugin will be corrected to 'entari-plugin-{name}' automatically.",
+          "keep": "If you want to keep the name, please use option {opt}.",
+          "installed": "'{name}' already installed, please use another name.",
+          "exists": "Plugin {name} already exists in the configuration file.",
+          "created": "Plugin created at {path}.",
+          "install_failed": "Failed to install arclet-entari[full] with pip, please check the output above.",
+          "no_python_found": "No Python interpreter found.",
+          "invalid_selection": "Invalid selection."
+        }
+      },
+      "remove": {
+        "description": "Remove an Entari plugin from the configuration file",
+        "prompts": {
+          "name": "Please specify a plugin name:",
+          "success": "Plugin {name} removed from configuration file successfully."
+        }
+      },
+      "run": {
+        "description": "Launch Entari",
+        "options": {
+          "python": "Custom Python interpreter path"
+        }
+      },
+      "generate": {
+        "description": "Generate an Entari main script",
+        "messages": {
+          "generated": "Main script generated at {file}"
+        }
+      },
+      "version": {
+        "description": "show the version and exit"
+      },
+      "config": {
+        "path": "Specify the configuration path",
+        "description": "Configuration operations",
+        "options": {
+          "new": "Create a new Entari Configuration",
+          "current": "View the current configuration file",
+          "dev": "Whether to generate a development configuration"
+        },
+        "messages": {
+          "exist": "{path} already exists",
+          "created": "Configuration file created at {path}",
+          "not_supported": "Unsupported file extension: {suffix}",
+          "current": "Current configuration file: {path}"
+        }
+      }
+    },
+    "errors": {
+      "python_not_found": "Cannot find a valid Python interpreter.",
+      "invalid_project_name": "Invalid project name: {name}"
+    },
+    "config": {
+      "ext_failed": "Failed to load config extension '{ext_mod}': {e}"
+    },
+    "venv": {
+      "use": "Using virtual environment Python: {venv_python}",
+      "create": "Virtual environment created at {venv_python}"
+    }
+  }
+}

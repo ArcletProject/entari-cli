@@ -5,6 +5,7 @@ from clilte import BasePlugin, PluginMetadata, register
 from clilte.core import Next
 from colorama import Fore
 
+from entari_cli import i18n_
 from entari_cli.config import EntariConfig
 from entari_cli.template import (
     JSON_BASIC_TEMPLATE,
@@ -40,17 +41,17 @@ class ConfigPlugin(BasePlugin):
             "config",
             Subcommand(
                 "new",
-                Option("-d|--dev", help_text="是否生成开发用配置文件"),
-                help_text="新建一个 Entari 配置文件",
+                Option("-d|--dev", help_text=i18n_.commands.config.options.dev()),
+                help_text=i18n_.commands.config.options.new(),
             ),
-            Subcommand("current", help_text="查看当前配置文件"),
-            meta=CommandMeta("配置文件操作"),
+            Subcommand("current", help_text=i18n_.commands.config.options.current()),
+            meta=CommandMeta(i18n_.commands.config.description()),
         )
 
     def meta(self) -> PluginMetadata:
         return PluginMetadata(
             name="config",
-            description="配置文件操作",
+            description=i18n_.commands.config.description(),
             version="0.1.0",
         )
 
@@ -63,8 +64,7 @@ class ConfigPlugin(BasePlugin):
             else:
                 _path = Path(path)
             if _path.exists():
-                print(f"{_path} already exists")
-                return
+                return i18n_.commands.config.messages.exist(path=_path)
             if _path.suffix.startswith(".json"):
                 if names:
                     PT = JSON_PLUGIN_BLANK_TEMPLATE.format(plugins=",\n".join(f'    "{name}": {{}}' for name in names))
@@ -76,8 +76,7 @@ class ConfigPlugin(BasePlugin):
                 with _path.open("w", encoding="utf-8") as f:
                     f.write(JSON_BASIC_TEMPLATE + PT)
                 check_env(_path)
-                print(f"Config file created at {_path}")
-                return
+                return i18n_.commands.config.messages.created(path=_path)
             if _path.suffix in (".yaml", ".yml"):
                 if names:
                     PT = YAML_PLUGIN_BLANK_TEMPLATE.format(plugins="\n".join(f"  {name}: {{}}" for name in names))
@@ -89,13 +88,11 @@ class ConfigPlugin(BasePlugin):
                 with _path.open("w", encoding="utf-8") as f:
                     f.write(YAML_BASIC_TEMPLATE + PT)
                 check_env(_path)
-                print(f"Config file created at {_path}")
-                return
-            print(f"Unsupported file extension: {_path.suffix}")
-            return
+                return i18n_.commands.config.messages.created(path=_path)
+            return i18n_.commands.config.messages.not_supported(suffix=_path.suffix)
         if result.find("config.current"):
             cfg = EntariConfig.load()
-            return f"Current config file:\n{Fore.BLUE}{cfg.path.resolve()!s}"
+            return i18n_.commands.config.messages.current(path=f"{Fore.BLUE}{cfg.path.resolve()!s}{Fore.RESET}")
         if result.find("config"):
             return self.command.get_help()
         return next_(None)

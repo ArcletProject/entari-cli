@@ -3,6 +3,10 @@ import pkgutil
 
 from clilte import CommandLine
 
+from .i18n import Lang
+
+i18n_ = Lang.entari_cli
+
 __version__ = "0.1.0"
 
 cli = CommandLine(
@@ -11,7 +15,7 @@ cli = CommandLine(
     rich=True,
     fuzzy_match=True,
     _name="entari",
-    load_preset=True,
+    load_preset=False,
 )
 
 COMMANDS_MODULE_PATH = importlib.import_module("entari_cli.commands").__path__

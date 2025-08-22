@@ -8,10 +8,9 @@ import re
 from typing import Any, Callable, ClassVar, TypeVar, Union
 import warnings
 
-try:
-    from ruamel.yaml import YAML
-except ImportError:
-    YAML = None
+from ruamel.yaml import YAML
+
+from entari_cli import i18n_
 
 ENV_CONTEXT_PAT = re.compile(r"['\"]?\$\{\{\s?env\.(?P<name>[^}\s]+)\s?\}\}['\"]?")
 T = TypeVar("T")
@@ -180,11 +179,11 @@ class EntariConfig:
             for ext_mod in ext_mods:
                 if not ext_mod:
                     continue
-                ext_mod = ext_mod.replace("::", "arclet.entari.config.format.")
+                ext_mod = ext_mod.replace("::", "entari_cli.config.format.")
                 try:
                     import_module(ext_mod)
                 except ImportError as e:
-                    warnings.warn(f"Failed to load config extension '{ext_mod}': {e}", ImportWarning)
+                    warnings.warn(i18n_.config.ext_failed(ext_mod=ext_mod, error=repr(e)), ImportWarning)
         if not _path.exists():
             return cls(_path)
         if not _path.is_file():
@@ -230,8 +229,6 @@ def json_dumper(save_path: Path, origin: dict, indent: int):
 
 @register_loader("yaml", "yml")
 def yaml_loader(text: str) -> dict:
-    if YAML is None:
-        raise RuntimeError("yaml is not installed. Please install with `arclet-entari[yaml]`")
     yaml = YAML()
     yaml.preserve_quotes = True
     yaml.indent(mapping=2, sequence=4, offset=2)
@@ -240,8 +237,6 @@ def yaml_loader(text: str) -> dict:
 
 @register_dumper("yaml", "yml")
 def yaml_dumper(save_path: Path, origin: dict, indent: int):
-    if YAML is None:
-        raise RuntimeError("yaml is not installed. Please install with `arclet-entari[yaml]`")
     yaml = YAML()
     yaml.preserve_quotes = True
     yaml.indent(mapping=indent, sequence=indent + 2, offset=indent)

@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Callable
 from colorama import Fore
 from packaging.version import InvalidVersion, Version
 
+from entari_cli import i18n_
 from entari_cli.consts import DEFAULT_PYTHON, WINDOWS, WINDOWS_DEFAULT_PYTHON
 from entari_cli.utils import find_python_in_path
 from entari_cli.venv import VirtualEnv, get_venv_python
@@ -34,6 +35,7 @@ def _get_env_python() -> str:
             f"{python} -W ignore -c " '"import sys, json; print(json.dumps(sys.executable))"',
             shell=True,
             stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
         stdout, stderr = proc.communicate()
         if proc.returncode == 0:
@@ -52,7 +54,7 @@ def _get_env_python() -> str:
 _path_venv_cache: dict[Path, str] = {}
 
 
-def get_default_python(cwd: Path | None = None) -> str:
+def get_default_python(cwd: Path | None = None, prompt: bool = False) -> str:
     cwd = cwd or Path.cwd().resolve()
 
     if cwd in _path_venv_cache:
@@ -61,7 +63,8 @@ def get_default_python(cwd: Path | None = None) -> str:
     venv_python, _ = get_venv_python(cwd)
     if venv_python.exists():
         _path_venv_cache[cwd] = str(venv_python)
-        print(f"{Fore.GREEN}Using virtual environment Python: {venv_python!s}{Fore.RESET}")
+        if prompt:
+            print(f"{Fore.GREEN}{i18n_.venv.use(venv_python=str(venv_python))}{Fore.RESET}")
         return str(venv_python)
 
     return _get_env_python()
@@ -238,5 +241,24 @@ def iter_interpreters(
         return
 
 
+def check_package_installed(package: str, cwd: Path | None = None) -> bool:
+    executable = get_default_python(cwd)
+    proc = subprocess.Popen(
+        f"{executable} -W ignore -c "
+        f"\"import json, importlib.util; print(json.dumps(importlib.util.find_spec('{package}') is not None))\"",
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    stdout, _ = proc.communicate()
+    if proc.returncode == 0:
+        try:
+            return json.loads(stdout.splitlines()[-1].strip())
+        except Exception:
+            return False
+    return False
+
+
 if __name__ == "__main__":
     print(get_default_python(Path.cwd().parent.parent))
+    print(check_package_installed("findpython"))

@@ -11,6 +11,7 @@ import sys
 from colorama import Fore
 from findpython import BaseProvider, PythonVersion
 
+from entari_cli import i18n_
 from entari_cli.consts import WINDOWS
 from entari_cli.utils import get_venv_like_prefix
 
@@ -152,5 +153,5 @@ def create_virtualenv(venv_dir: Path, base_python: str, prompt: str | None = Non
     else:
         cmd = [base_python, "-m", "venv", str(venv_dir), *prompt_option]
         subprocess.check_call(cmd, stdout=subprocess.DEVNULL)
-    print(f"{Fore.GREEN}Virtual environment created at {Fore.YELLOW}{venv_dir.resolve()}{Fore.RESET}")
+    print(f"{Fore.GREEN}{i18n_.venv.create(venv_python=f'{Fore.YELLOW}{venv_dir.resolve()}')}{Fore.RESET}")
     return venv_dir
