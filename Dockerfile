@@ -12,9 +12,10 @@ COPY . /project/
 WORKDIR /project
 
 RUN mkdir __pypackages__ && \
-    python -m pipx run --no-cache pdm sync --prod --no-editable \
+    python -m pipx run --no-cache pdm sync --prod --no-editable
 
 
+# run stage
 FROM python:${PYTHON_IMAGE}${VARIANT}
 
 ARG PYTHON_IMAGE
