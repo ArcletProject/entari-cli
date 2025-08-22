@@ -21,7 +21,7 @@ class GenerateMain(BasePlugin):
         )
 
     def dispatch(self, result: Arparma, next_: Next):
-        if result.find("run"):
+        if result.find("gen_main"):
             file = Path.cwd() / "main.py"
             path = result.query[str]("cfg_path.path", "")
             with file.open("w+", encoding="utf-8") as f:

@@ -1,7 +1,15 @@
+from pathlib import Path
 import re
 import shutil
 import subprocess
 import sys
+
+from colorama import Fore
+
+from entari_cli import i18n_
+from entari_cli.py_info import PythonInfo, iter_interpreters
+from entari_cli.utils import ask, is_conda_base_python
+from entari_cli.venv import create_virtualenv, get_venv_python
 
 PYTHON_VERSION = sys.version_info[:2]
 
@@ -39,3 +47,32 @@ def sanitize_project_name(name: str) -> str:
     if not result:
         raise ValueError(f"Invalid project name: {name}")
     return result
+
+
+def select_python(cwd: Path, python: str) -> PythonInfo:
+
+    def version_matcher(py_version: PythonInfo) -> bool:
+        return py_version.valid
+
+    python = python.strip()
+    found_interpreters = list(dict.fromkeys(iter_interpreters(cwd, python, filter_func=version_matcher)))
+    if not found_interpreters:
+        raise ValueError(i18n_.project.no_python_found())
+
+    print(i18n_.project.select_python())
+    for i, py_version in enumerate(found_interpreters):
+        print(
+            f"{i:>2}. {Fore.GREEN}{py_version.implementation}@{py_version.identifier}{Fore.RESET} ({py_version.path!s})"
+        )
+    selection = ask(i18n_.project.please_select(), default="0")
+    if not selection.isdigit() or int(selection) < 0 or int(selection) >= len(found_interpreters):
+        raise ValueError(i18n_.project.invalid_selection())
+    return found_interpreters[int(selection)]
+
+
+def ensure_python(cwd: Path, python: str = "") -> PythonInfo:
+    selected_python = select_python(cwd, python)
+    if selected_python.get_venv() is None or is_conda_base_python(selected_python.path):
+        create_virtualenv(cwd / ".venv", str(selected_python.path))
+        selected_python = PythonInfo.from_path(get_venv_python(cwd)[0])
+    return selected_python

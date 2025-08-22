@@ -8,6 +8,19 @@
           "subtype": "commands",
           "types": [
             {
+              "subtype": "init",
+              "types": [
+                "description",
+                {
+                  "subtype": "options",
+                  "types": [
+                    "python",
+                    "pip_args"
+                  ]
+                }
+              ]
+            },
+            {
               "subtype": "add",
               "types": [
                 "description",
@@ -58,9 +71,7 @@
                     "python_requires",
                     "license",
                     "is_single_file",
-                    "is_disposable",
-                    "select_python",
-                    "please_select"
+                    "is_disposable"
                   ]
                 },
                 {
@@ -71,10 +82,7 @@
                     "keep",
                     "installed",
                     "exists",
-                    "created",
-                    "install_failed",
-                    "no_python_found",
-                    "invalid_selection"
+                    "created"
                   ]
                 }
               ]
@@ -159,6 +167,16 @@
           "subtype": "config",
           "types": [
             "ext_failed"
+          ]
+        },
+        {
+          "subtype": "project",
+          "types": [
+            "select_python",
+            "please_select",
+            "install_failed",
+            "no_python_found",
+            "invalid_selection"
           ]
         },
         {

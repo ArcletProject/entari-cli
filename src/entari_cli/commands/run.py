@@ -44,4 +44,5 @@ class RunApplication(BasePlugin):
                     MAIN_SCRIPT.format(path=f'"{path}"'),
                     cwd=cwd,
                 )
+            exit(ret_code)
         return next_(None)

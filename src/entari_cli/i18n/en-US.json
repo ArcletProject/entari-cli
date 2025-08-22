@@ -2,6 +2,13 @@
   "$schema": ".lang.schema.json",
   "entari_cli": {
     "commands": {
+      "init": {
+        "description": "Create a new Entari environment",
+        "options": {
+          "python": "Specify the Python interpreter path",
+          "pip_args": "Extra parameters passed to pip"
+        }
+      },
       "add": {
         "description": "Add an Entari plugin to the configuration file",
         "options": {
@@ -37,9 +44,7 @@
           "python_requires": "Python requires ('*' to allow any)",
           "license": "License (SPDX name)",
           "is_single_file": "Is this a single file plugin?",
-          "is_disposable": "Is this a disposable plugin?",
-          "select_python": "Please enter the Python interpreter to use",
-          "please_select": "Please select"
+          "is_disposable": "Is this a disposable plugin?"
         },
         "messages": {
           "invalid": "Invalid plugin name: {name}",
@@ -47,10 +52,7 @@
           "keep": "If you want to keep the name, please use option {opt}.",
           "installed": "'{name}' already installed, please use another name.",
           "exists": "Plugin {name} already exists in the configuration file.",
-          "created": "Plugin created at {path}.",
-          "install_failed": "Failed to install arclet-entari[full] with pip, please check the output above.",
-          "no_python_found": "No Python interpreter found.",
-          "invalid_selection": "Invalid selection."
+          "created": "Plugin created at {path}."
         }
       },
       "remove": {
@@ -94,6 +96,13 @@
     "errors": {
       "python_not_found": "Cannot find a valid Python interpreter.",
       "invalid_project_name": "Invalid project name: {name}"
+    },
+    "project": {
+      "select_python": "Please enter the Python interpreter path to use",
+      "please_select": "Please select",
+      "install_failed": "Failed to install arclet-entari[full] with pip, please check the output above.",
+      "no_python_found": "No Python interpreter found.",
+      "invalid_selection": "Invalid selection."
     },
     "config": {
       "ext_failed": "Failed to load config extension '{ext_mod}': {e}"

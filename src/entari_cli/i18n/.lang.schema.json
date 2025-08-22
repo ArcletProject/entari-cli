@@ -15,6 +15,37 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
+            "init": {
+              "title": "Init",
+              "description": "Scope 'init' of lang item",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "description": {
+                  "title": "description",
+                  "description": "value of lang item type 'description'",
+                  "type": "string"
+                },
+                "options": {
+                  "title": "Options",
+                  "description": "Scope 'options' of lang item",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "python": {
+                      "title": "python",
+                      "description": "value of lang item type 'python'",
+                      "type": "string"
+                    },
+                    "pip_args": {
+                      "title": "pip_args",
+                      "description": "value of lang item type 'pip_args'",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
             "add": {
               "title": "Add",
               "description": "Scope 'add' of lang item",
@@ -188,16 +219,6 @@
                       "title": "is_disposable",
                       "description": "value of lang item type 'is_disposable'",
                       "type": "string"
-                    },
-                    "select_python": {
-                      "title": "select_python",
-                      "description": "value of lang item type 'select_python'",
-                      "type": "string"
-                    },
-                    "please_select": {
-                      "title": "please_select",
-                      "description": "value of lang item type 'please_select'",
-                      "type": "string"
                     }
                   }
                 },
@@ -235,21 +256,6 @@
                     "created": {
                       "title": "created",
                       "description": "value of lang item type 'created'",
-                      "type": "string"
-                    },
-                    "install_failed": {
-                      "title": "install_failed",
-                      "description": "value of lang item type 'install_failed'",
-                      "type": "string"
-                    },
-                    "no_python_found": {
-                      "title": "no_python_found",
-                      "description": "value of lang item type 'no_python_found'",
-                      "type": "string"
-                    },
-                    "invalid_selection": {
-                      "title": "invalid_selection",
-                      "description": "value of lang item type 'invalid_selection'",
                       "type": "string"
                     }
                   }
@@ -450,6 +456,39 @@
             "ext_failed": {
               "title": "ext_failed",
               "description": "value of lang item type 'ext_failed'",
+              "type": "string"
+            }
+          }
+        },
+        "project": {
+          "title": "Project",
+          "description": "Scope 'project' of lang item",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "select_python": {
+              "title": "select_python",
+              "description": "value of lang item type 'select_python'",
+              "type": "string"
+            },
+            "please_select": {
+              "title": "please_select",
+              "description": "value of lang item type 'please_select'",
+              "type": "string"
+            },
+            "install_failed": {
+              "title": "install_failed",
+              "description": "value of lang item type 'install_failed'",
+              "type": "string"
+            },
+            "no_python_found": {
+              "title": "no_python_found",
+              "description": "value of lang item type 'no_python_found'",
+              "type": "string"
+            },
+            "invalid_selection": {
+              "title": "invalid_selection",
+              "description": "value of lang item type 'invalid_selection'",
               "type": "string"
             }
           }

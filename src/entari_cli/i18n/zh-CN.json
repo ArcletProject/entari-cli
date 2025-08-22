@@ -2,6 +2,13 @@
   "$schema": ".lang.schema.json",
   "entari_cli": {
     "commands": {
+      "init": {
+        "description": "新建一个虚拟环境并安装 Entari",
+        "options": {
+          "python": "指定 Python 解释器路径",
+          "pip_args": "传递给 pip 的额外参数"
+        }
+      },
       "add": {
         "description": "添加一个 Entari 插件到配置文件中",
         "options": {
@@ -37,9 +44,7 @@
           "python_requires": "Python 版本 ('*' 表示任意版本)",
           "license": "许可证 (SPDX 名称)",
           "is_single_file": "这是一个单文件插件吗？",
-          "is_disposable": "这是可重载的插件吗？",
-          "select_python": "请输入 Python 解释器路径以供使用",
-          "please_select": "请选择"
+          "is_disposable": "这是可重载的插件吗？"
         },
         "messages": {
           "invalid": "插件名称无效：{name}",
@@ -47,10 +52,7 @@
           "keep": "如果您想保留名称，请使用选项 {opt}。",
           "installed": "'{name}' 已安装，请使用其他名称。",
           "exists": "插件 {name} 已存在于配置文件中。",
-          "created": "插件将创建于 {path}。",
-          "install_failed": "无法使用 pip 安装 arclet-entari[full]，请检查输出。",
-          "no_python_found": "未找到 Python 解释器。",
-          "invalid_selection": "选择无效。"
+          "created": "插件将创建于 {path}。"
         }
       },
       "remove": {
@@ -94,6 +96,13 @@
     "errors": {
       "python_not_found": "找不到有效的 Python 解释器。",
       "invalid_project_name": "项目名称无效：{name}"
+    },
+    "project": {
+      "select_python": "请输入要使用的 Python 解释器路径",
+      "please_select": "请选择",
+      "install_failed": "无法使用 pip 安装 arclet-entari[full]，请检查输出。",
+      "no_python_found": "未找到 Python 解释器。",
+      "invalid_selection": "选择无效。"
     },
     "config": {
       "ext_failed": "无法加载配置扩展 '{ext_mod}'： {e}"

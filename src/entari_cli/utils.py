@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 import re
 
+from colorama import Fore
+
 
 def is_conda_base() -> bool:
     return os.getenv("CONDA_DEFAULT_ENV", "") == "base"
@@ -70,3 +72,12 @@ def find_python_in_path(path: str | Path) -> Path | None:
                 return python
 
     return None
+
+
+def ask(text: str, default=None):
+    if default is not None:
+        text += f" {Fore.MAGENTA}({default}){Fore.RESET}: "
+        ans = input(text).strip() or default
+    else:
+        ans = input(f"{text}: {Fore.RESET}").strip()
+    return ans
