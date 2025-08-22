@@ -9,6 +9,21 @@ dependencies = ["cli-lite>=0.11.0", "colorama>=0.4.6", "tomlkit>=0.13.3", "ruame
 requires-python = ">=3.9"
 readme = "README.md"
 license = {text = "MIT"}
+keywords = ["bot", "dependency", "entari"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Topic :: Software Development :: Build Tools",
+    "Framework :: Robot Framework",
+    "Framework :: Robot Framework :: Library",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 
 [project.optional-dependencies]
 virtualenv = [
@@ -29,6 +44,9 @@ distribution = true
 [tool.pdm.version]
 source = "file"
 path = "src/entari_cli/__init__.py"
+
+[tool.pdm.build]
+include = ["src/"]
 
 [dependency-groups]
 dev = [

@@ -146,10 +146,10 @@ class NewPlugin(BasePlugin):
                         f.write(
                             PLUGIN_PROJECT_TEMPLATE.format(
                                 name=proj_name,
-                                version=entari_version,
+                                version=version,
                                 description=description,
                                 author=f'{{"name" = "{author}", "email" = "{email}"}}',
-                                entari_version="0.15.0",
+                                entari_version=entari_version,
                                 python_requirement=f'"{python_requires}"',
                                 license=f'{{"text" = "{licence}"}}',
                             )

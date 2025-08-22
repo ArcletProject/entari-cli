@@ -73,6 +73,7 @@ def select_python(cwd: Path, python: str) -> PythonInfo:
 def ensure_python(cwd: Path, python: str = "") -> PythonInfo:
     selected_python = select_python(cwd, python)
     if selected_python.get_venv() is None or is_conda_base_python(selected_python.path):
-        create_virtualenv(cwd / ".venv", str(selected_python.path))
+        prompt = f"{cwd.name}-{selected_python.major}.{selected_python.minor}"
+        create_virtualenv(cwd / ".venv", str(selected_python.path), prompt)
         selected_python = PythonInfo.from_path(get_venv_python(cwd)[0])
     return selected_python
