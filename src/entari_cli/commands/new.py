@@ -16,7 +16,7 @@ from entari_cli.project import (
     sanitize_project_name,
     validate_project_name,
 )
-from entari_cli.py_info import check_package_installed
+from entari_cli.py_info import check_package_installed, get_package_version
 from entari_cli.template import (
     PLUGIN_DEFAULT_TEMPLATE,
     PLUGIN_PROJECT_TEMPLATE,
@@ -55,6 +55,7 @@ class NewPlugin(BasePlugin):
         if result.find("new"):
             is_application = result.find("new.application")
             python = result.query[str]("new.python.path", "")
+            entari_version = "0.15.0"
             if not is_application:
                 ans = ask(i18n_.commands.new.prompts.is_plugin_project(), "Y/n").strip().lower()
                 is_application = ans in {"no", "false", "f", "0", "n", "n/a", "none", "nope", "nah"}
@@ -84,6 +85,7 @@ class NewPlugin(BasePlugin):
                     ret_code = call_pip(python_path, "install", "arclet-entari[full]", *args)
                     if ret_code != 0:
                         return f"{Fore.RED}{i18n_.project.install_failed()}{Fore.RESET}"
+                entari_version = get_package_version("arclet.entari", python_path) or entari_version
             name = result.query[str]("new.name")
             if not name:
                 cwd = Path.cwd()
@@ -144,7 +146,7 @@ class NewPlugin(BasePlugin):
                         f.write(
                             PLUGIN_PROJECT_TEMPLATE.format(
                                 name=proj_name,
-                                version=version,
+                                version=entari_version,
                                 description=description,
                                 author=f'{{"name" = "{author}", "email" = "{email}"}}',
                                 entari_version="0.15.0",

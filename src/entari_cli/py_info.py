@@ -259,6 +259,25 @@ def check_package_installed(package: str, python_path: str | None = None, cwd: P
     return False
 
 
+def get_package_version(package: str, python_path: str | None = None, cwd: Path | None = None) -> str | None:
+    executable = python_path or get_default_python(cwd)
+    proc = subprocess.Popen(
+        f"{executable} -W ignore -c "
+        f"\"import json, importlib.metadata; print(json.dumps(importlib.metadata.version('{package}')))\"",
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    stdout, _ = proc.communicate()
+    if proc.returncode == 0:
+        try:
+            return json.loads(stdout.splitlines()[-1].strip())
+        except Exception:
+            return None
+    return None
+
+
 if __name__ == "__main__":
     print(get_default_python(Path.cwd().parent.parent))
     print(check_package_installed("findpython"))
+    print(get_package_version("findpytho"))
