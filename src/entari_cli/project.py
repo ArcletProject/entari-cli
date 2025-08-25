@@ -108,6 +108,7 @@ def install_dependencies(
     pm: str = setting.get_config("install.package_manager")
     install_args = install_args or ()
     de_install_args = setting.get_config("install.args")
+    de_install_cmd = setting.get_config("install.command")
     if de_install_args:
         install_args = (*de_install_args.split(","), *install_args)
     pre_run = setting.get_config("install.pre_run")
@@ -125,7 +126,7 @@ def install_dependencies(
             pm = "pip"
             ret_code = call_pip("install", *install_args, *deps)
         else:
-            ret_code = run_process(executable, "add", *install_args, *deps)
+            ret_code = run_process(executable, de_install_cmd, *install_args, *deps)
     if ret_code != 0:
         print(f"{Fore.RED}{i18n_.project.install_failed(deps=', '.join(deps), pm=pm)}{Fore.RESET}")
     return ret_code

@@ -56,5 +56,6 @@ DEFAULT: dict[str, Any] = {
     "editor": "",
     "install.package_manager": "pip",
     "install.pre_run": "",
+    "install.command": "install",
     "install.args": "",
 }

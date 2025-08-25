@@ -34,7 +34,7 @@ class SelfSetting(BasePlugin):
     def init(self):
         return Alconna(
             "setting",
-            Args[f"key/?#{i18n_.commands.setting.key()}", str][f"value/?#{i18n_.commands.setting.key()}", str],
+            Args[f"key/?#{i18n_.commands.setting.key()}", str][f"value/#{i18n_.commands.setting.key()}", str, ""],
             Option("-l|--local", help_text=i18n_.commands.setting.options.local()),
             Option("-d|--delete", help_text=i18n_.commands.setting.options.delete()),
             Option("-e|--edit", help_text=i18n_.commands.setting.options.edit()),
@@ -106,9 +106,9 @@ class SelfSetting(BasePlugin):
             with setting_file.open("w", encoding="utf-8") as f:
                 tomlkit.dump(cfg, f)
             return f"{Fore.GREEN}{i18n_.commands.setting.delete.success(key=key)}{Fore.RESET}"
-        if result.find("setting.args.value"):
+        value = result.query[str]("setting.args.value", "")
+        if value:
             key = result.query[str]("setting.args.key", "")
-            value = result.query[str]("setting.args.value")
             setting_dir = (
                 get_project_root() if result.find("setting.local") else user_config_path("entari-cli", appauthor=False)
             )
