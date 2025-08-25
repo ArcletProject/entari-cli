@@ -3,15 +3,15 @@ import re
 import shutil
 import subprocess
 import sys
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Optional
 
 from colorama import Fore
 
 from entari_cli import i18n_
+from entari_cli.process import run_process
 from entari_cli.py_info import PythonInfo, iter_interpreters
 from entari_cli.utils import ask, is_conda_base_python
 from entari_cli.venv import create_virtualenv, get_venv_python
-from entari_cli.process import run_process
 
 PYTHON_VERSION = sys.version_info[:2]
 
@@ -95,14 +95,37 @@ def get_project_root() -> Path:
 
 
 def install_dependencies(
-        setting: "SelfSetting",
-        deps: list[str],
-        python_path: Optional[str] = None,
-        install_args: Optional[tuple[str, ...]] = None,
-) -> None:
+    setting: "SelfSetting",
+    deps: list[str],
+    python_path: Optional[str] = None,
+    install_args: Optional[tuple[str, ...]] = None,
+):
     """Install dependencies using pip."""
 
     def call_pip(*args):
         return run_process(python_path or sys.executable, "-m", "pip", *args)
 
-    pm = setting.get_config("install.package_manager")
+    pm: str = setting.get_config("install.package_manager")
+    install_args = install_args or ()
+    de_install_args = setting.get_config("install.args")
+    if de_install_args:
+        install_args = (*de_install_args.split(","), *install_args)
+    pre_run = setting.get_config("install.pre_run")
+    if pre_run:
+        proc = subprocess.Popen(pre_run, shell=True)
+        if (ret_code := proc.wait()) != 0:
+            print(f"{Fore.RED}{i18n_.project.install_failed(deps=', '.join(deps), pm=pm)}{Fore.RESET}")
+            return ret_code
+    if pm == "pip":
+        ret_code = call_pip("install", *install_args, *deps)
+    else:
+        executable = shutil.which(pm)
+        if not executable:
+            print(f"{Fore.YELLOW}{i18n_.project.fallback_pip(pm=pm)}{Fore.RESET}")
+            pm = "pip"
+            ret_code = call_pip("install", *install_args, *deps)
+        else:
+            ret_code = run_process(executable, "add", *install_args, *deps)
+    if ret_code != 0:
+        print(f"{Fore.RED}{i18n_.project.install_failed(deps=', '.join(deps), pm=pm)}{Fore.RESET}")
+    return ret_code

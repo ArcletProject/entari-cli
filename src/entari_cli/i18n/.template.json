@@ -14,6 +14,7 @@
                 {
                   "subtype": "options",
                   "types": [
+                    "develop",
                     "python",
                     "install_args"
                   ]
@@ -160,6 +161,54 @@
                   ]
                 }
               ]
+            },
+            {
+              "subtype": "setting",
+              "types": [
+                "description",
+                "key",
+                "value",
+                {
+                  "subtype": "options",
+                  "types": [
+                    "local",
+                    "delete",
+                    "edit"
+                  ]
+                },
+                {
+                  "subtype": "edit",
+                  "types": [
+                    "failed_key",
+                    "failed_delete",
+                    "success",
+                    "failed"
+                  ]
+                },
+                {
+                  "subtype": "delete",
+                  "types": [
+                    "missing",
+                    "success"
+                  ]
+                },
+                {
+                  "subtype": "set",
+                  "types": [
+                      "missing",
+                      "success"
+                  ]
+                },
+                "get_failed",
+                {
+                  "subtype": "list",
+                  "types": [
+                    "title",
+                    "global",
+                    "local"
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -183,7 +232,8 @@
             "please_select",
             "install_failed",
             "no_python_found",
-            "invalid_selection"
+            "invalid_selection",
+            "fallback_pip"
           ]
         },
         {

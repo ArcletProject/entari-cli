@@ -83,7 +83,7 @@ files = [
 
 [[package]]
 name = "cli-lite"
-version = "0.11.0"
+version = "0.11.2"
 requires_python = ">=3.9"
 summary = "A simple framework to build a cli tool, base on Alconna"
 groups = ["default"]
@@ -93,8 +93,8 @@ dependencies = [
     "importlib-metadata>=3.6.0",
 ]
 files = [
-    {file = "cli_lite-0.11.0-py3-none-any.whl", hash = "sha256:58d66036a9f3643080353cec5d2bfa094abda57f9ae24578d7012b50fa795e87"},
-    {file = "cli_lite-0.11.0.tar.gz", hash = "sha256:c040a0b25e8ebe56a167d0fb23da1960dc0edfb2c2e098ed72fad882717dc415"},
+    {file = "cli_lite-0.11.2-py3-none-any.whl", hash = "sha256:48a8992fff4994779fb0dcf5596f077c2e684dcf528e453b068e164055d7fddc"},
+    {file = "cli_lite-0.11.2.tar.gz", hash = "sha256:0ecc8d1b3f0b979f625e3c20cab800cd8a9b4c68bee1acfc1bfdf7142d284009"},
 ]
 
 [[package]]

@@ -5,6 +5,7 @@
       "init": {
         "description": "新建一个虚拟环境并安装 Entari",
         "options": {
+          "develop": "是否安装开发依赖项",
           "python": "指定 Python 解释器路径",
           "install_args": "传递给包管理器的安装指令的额外参数"
         },
@@ -95,6 +96,36 @@
           "not_supported": "不支持的配置文件扩展名：{suffix}",
           "current": "当前配置文件：\n{path}"
         }
+      },
+      "setting": {
+        "description": "显示 entari-cli 设定(配置)",
+        "key": "配置键",
+        "value": "配置值",
+        "options": {
+          "local": "使用本地的设定(配置)文件，一般为项目目录下的 .entari_cli.yaml",
+          "delete": "重置某一配置项",
+          "edit": "在编辑器中打开配置文件（由 EDITOR 环境变量或 CLI 设置定义）"
+        },
+        "edit": {
+          "failed_key": "给定 '--edit' 时无法指定参数",
+          "failed_delete": "当给出 '--edit' 时，'--delete' 不起作用",
+          "success": "配置文件编辑成功。",
+          "failed": "编辑器 {editor} 异常退出"
+        },
+        "delete": {
+          "missing": "请指定要取消设置的配置键",
+          "success": "配置键 '{key}' 成功取消设置。"
+        },
+        "set": {
+          "missing": "请指定要设置的配置键",
+          "success": "配置键 '{key}' 已设置为 '{value}'。"
+        },
+        "get_failed": "没有配置键与 '{query}' 匹配",
+        "list": {
+          "title": "默认设置",
+          "global": "全局设定(配置)文件",
+          "local": "本地设定(配置)文件"
+        }
       }
     },
     "errors": {
@@ -104,9 +135,10 @@
     "project": {
       "select_python": "请输入要使用的 Python 解释器路径",
       "please_select": "请选择",
-      "install_failed": "无法使用 pip 安装 arclet-entari[full]，请检查输出。",
+      "install_failed": "无法使用 {pm} 安装 {deps}，请检查输出。",
       "no_python_found": "未找到 Python 解释器。",
-      "invalid_selection": "选择无效。"
+      "invalid_selection": "选择无效。",
+      "fallback_pip": "{pm} 未找到，将回退到使用 pip。"
     },
     "config": {
       "ext_failed": "无法加载配置扩展 '{ext_mod}'： {e}"

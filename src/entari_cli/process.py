@@ -24,15 +24,3 @@ def run_process(
     signal.signal(signal.SIGTERM, handle_term)
     signal.signal(signal.SIGINT, handle_int)
     return retcode
-
-
-def call_pip(
-    python_path: str,
-    *args: Union[str, bytes, "os.PathLike[str]", "os.PathLike[bytes]"],
-):
-    return run_process(
-        python_path,
-        "-m",
-        "pip",
-        *args,
-    )

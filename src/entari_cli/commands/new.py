@@ -3,17 +3,17 @@ import sys
 
 from arclet.alconna import Alconna, Args, Arparma, CommandMeta, MultiVar, Option
 from clilte import BasePlugin, PluginMetadata, register
-from clilte.core import Next
+from clilte.core import CommandLine, Next
 from colorama import Fore
 
 from entari_cli import i18n_
 from entari_cli.config import EntariConfig
-from entari_cli.consts import YES, NO
-from entari_cli.process import call_pip
+from entari_cli.consts import NO, YES
 from entari_cli.project import (
     PYTHON_VERSION,
     ensure_python,
     get_user_email_from_git,
+    install_dependencies,
     sanitize_project_name,
     validate_project_name,
 )
@@ -41,7 +41,12 @@ class NewPlugin(BasePlugin):
             Option("-O|--optional", help_text=i18n_.commands.new.options.optional()),
             Option("-p|--priority", Args["num/", int], help_text=i18n_.commands.new.options.priority()),
             Option("-py|--python", Args["path/", str], help_text=i18n_.commands.new.options.python()),
-            Option("--install-args", Args["params/", MultiVar(str)], help_text=i18n_.commands.new.options.install_args(), dest="install"),
+            Option(
+                "--install-args",
+                Args["params/", MultiVar(str)],
+                help_text=i18n_.commands.new.options.install_args(),
+                dest="install",
+            ),
             meta=CommandMeta(i18n_.commands.new.description()),
         )
 
@@ -53,6 +58,8 @@ class NewPlugin(BasePlugin):
         )
 
     def dispatch(self, result: Arparma, next_: Next):
+        from entari_cli.commands.setting import SelfSetting
+
         if result.find("new"):
             is_application = result.find("new.application")
             python = result.query[str]("new.python.path", "")
@@ -69,9 +76,14 @@ class NewPlugin(BasePlugin):
                     if use_venv:
                         python_path = str(ensure_python(Path.cwd(), python).executable)
                 if not check_package_installed("arclet.entari", python_path):
-                    ret_code = call_pip(python_path, "install", "arclet-entari[full]", *args)
+                    ret_code = install_dependencies(
+                        CommandLine.current().get_plugin(SelfSetting),  # type: ignore
+                        [f"arclet.entari[yaml,cron,reload.dotenv]"],
+                        python_path,
+                        args,
+                    )
                     if ret_code != 0:
-                        return f"{Fore.RED}{i18n_.project.install_failed()}{Fore.RESET}"
+                        return
                 entari_version = get_package_version("arclet.entari", python_path) or entari_version
             name = result.query[str]("new.name")
             if not name:

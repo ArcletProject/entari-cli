@@ -17,8 +17,9 @@ from entari_cli.template import (
     YAML_PLUGIN_COMMON_TEMPLATE,
     YAML_PLUGIN_DEV_TEMPLATE,
 )
-from .path import ConfigPath  # noqa: F401
+
 from ...project import get_project_root
+from .path import ConfigPath  # noqa: F401
 
 
 def check_env(file: Path):

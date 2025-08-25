@@ -32,6 +32,11 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "develop": {
+                      "title": "develop",
+                      "description": "value of lang item type 'develop'",
+                      "type": "string"
+                    },
                     "python": {
                       "title": "python",
                       "description": "value of lang item type 'python'",
@@ -444,6 +449,144 @@
                   }
                 }
               }
+            },
+            "setting": {
+              "title": "Setting",
+              "description": "Scope 'setting' of lang item",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "description": {
+                  "title": "description",
+                  "description": "value of lang item type 'description'",
+                  "type": "string"
+                },
+                "key": {
+                  "title": "key",
+                  "description": "value of lang item type 'key'",
+                  "type": "string"
+                },
+                "value": {
+                  "title": "value",
+                  "description": "value of lang item type 'value'",
+                  "type": "string"
+                },
+                "options": {
+                  "title": "Options",
+                  "description": "Scope 'options' of lang item",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "local": {
+                      "title": "local",
+                      "description": "value of lang item type 'local'",
+                      "type": "string"
+                    },
+                    "delete": {
+                      "title": "delete",
+                      "description": "value of lang item type 'delete'",
+                      "type": "string"
+                    },
+                    "edit": {
+                      "title": "edit",
+                      "description": "value of lang item type 'edit'",
+                      "type": "string"
+                    }
+                  }
+                },
+                "edit": {
+                  "title": "Edit",
+                  "description": "Scope 'edit' of lang item",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "failed_key": {
+                      "title": "failed_key",
+                      "description": "value of lang item type 'failed_key'",
+                      "type": "string"
+                    },
+                    "failed_delete": {
+                      "title": "failed_delete",
+                      "description": "value of lang item type 'failed_delete'",
+                      "type": "string"
+                    },
+                    "success": {
+                      "title": "success",
+                      "description": "value of lang item type 'success'",
+                      "type": "string"
+                    },
+                    "failed": {
+                      "title": "failed",
+                      "description": "value of lang item type 'failed'",
+                      "type": "string"
+                    }
+                  }
+                },
+                "delete": {
+                  "title": "Delete",
+                  "description": "Scope 'delete' of lang item",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "missing": {
+                      "title": "missing",
+                      "description": "value of lang item type 'missing'",
+                      "type": "string"
+                    },
+                    "success": {
+                      "title": "success",
+                      "description": "value of lang item type 'success'",
+                      "type": "string"
+                    }
+                  }
+                },
+                "set": {
+                  "title": "Set",
+                  "description": "Scope 'set' of lang item",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "missing": {
+                      "title": "missing",
+                      "description": "value of lang item type 'missing'",
+                      "type": "string"
+                    },
+                    "success": {
+                      "title": "success",
+                      "description": "value of lang item type 'success'",
+                      "type": "string"
+                    }
+                  }
+                },
+                "get_failed": {
+                  "title": "get_failed",
+                  "description": "value of lang item type 'get_failed'",
+                  "type": "string"
+                },
+                "list": {
+                  "title": "List",
+                  "description": "Scope 'list' of lang item",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "title": {
+                      "title": "title",
+                      "description": "value of lang item type 'title'",
+                      "type": "string"
+                    },
+                    "global": {
+                      "title": "global",
+                      "description": "value of lang item type 'global'",
+                      "type": "string"
+                    },
+                    "local": {
+                      "title": "local",
+                      "description": "value of lang item type 'local'",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -507,6 +650,11 @@
             "invalid_selection": {
               "title": "invalid_selection",
               "description": "value of lang item type 'invalid_selection'",
+              "type": "string"
+            },
+            "fallback_pip": {
+              "title": "fallback_pip",
+              "description": "value of lang item type 'fallback_pip'",
               "type": "string"
             }
           }

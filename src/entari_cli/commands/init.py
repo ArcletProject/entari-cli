@@ -2,14 +2,14 @@ from pathlib import Path
 import sys
 
 from arclet.alconna import Alconna, Args, Arparma, CommandMeta, MultiVar, Option
-from clilte import BasePlugin, PluginMetadata, register
+from clilte import BasePlugin, CommandLine, PluginMetadata, register
 from clilte.core import Next
 from colorama import Fore
 
 from entari_cli import i18n_
-from entari_cli.process import call_pip
-from entari_cli.project import ensure_python
-from entari_cli.py_info import check_package_installed
+from entari_cli.project import ensure_python, install_dependencies
+from entari_cli.py_info import PythonInfo, check_package_installed, get_package_version
+from entari_cli.template import WORKSPACE_PROJECT_TEMPLATE
 from entari_cli.utils import ask
 from entari_cli.venv import get_venv_like_prefix
 
@@ -19,8 +19,14 @@ class InitEnv(BasePlugin):
     def init(self):
         return Alconna(
             "init",
+            Option("-d|--develop", help_text=i18n_.commands.init.options.develop()),
             Option("-py|--python", Args["path/", str], help_text=i18n_.commands.init.options.python()),
-            Option("--install-args", Args["params/", MultiVar(str)], help_text=i18n_.commands.init.options.install_args(), dest="install"),
+            Option(
+                "--install-args",
+                Args["params/", MultiVar(str)],
+                help_text=i18n_.commands.init.options.install_args(),
+                dest="install",
+            ),
             meta=CommandMeta(i18n_.commands.init.description()),
         )
 
@@ -32,10 +38,16 @@ class InitEnv(BasePlugin):
         )
 
     def dispatch(self, result: Arparma, next_: Next):
+        from entari_cli.commands.setting import SelfSetting
+
         if result.find("init"):
             python = result.query[str]("init.python.path", "")
             args = result.query[tuple[str, ...]]("init.install.params", ())
-
+            is_dev = result.find("init.develop")
+            extra = ["yaml", "cron"]
+            if is_dev:
+                extra += ["reload", "dotenv"]
+            extras = ",".join(extra)
             python_path = sys.executable
             if get_venv_like_prefix(sys.executable)[0] is None:
                 ans = ask(i18n_.venv.ask_create(), "Y/n").strip().lower()
@@ -45,8 +57,24 @@ class InitEnv(BasePlugin):
             if check_package_installed("arclet.entari", python_path):
                 return f"{Fore.YELLOW}{i18n_.commands.init.messages.initialized()}{Fore.RESET}"
             else:
-                ret_code = call_pip(sys.executable, "install", "arclet-entari[full]", *args)
+                ret_code = install_dependencies(
+                    CommandLine.current().get_plugin(SelfSetting),  # type: ignore
+                    [f"arclet.entari[{extras}]"],
+                    python_path,
+                    args,
+                )
                 if ret_code != 0:
-                    return f"{Fore.RED}{i18n_.project.install_failed()}{Fore.RESET}"
+                    return
+            toml_file = Path.cwd() / "pyproject.toml"
+            if not toml_file.exists():
+                info = PythonInfo.from_path(python_path)
+                with toml_file.open("w", encoding="utf-8") as f:
+                    f.write(
+                        WORKSPACE_PROJECT_TEMPLATE.format(
+                            extra=extras,
+                            entari_version=get_package_version("arclet.entari", python_path) or "0.15.0",
+                            python_requirement=f">= {info.major}.{info.minor}",
+                        )
+                    )
             return f"{Fore.GREEN}{i18n_.commands.init.messages.success()}{Fore.RESET}"
         return next_(None)

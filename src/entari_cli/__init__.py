@@ -2,6 +2,7 @@ import importlib
 import pkgutil
 
 from clilte import CommandLine
+from colorama.ansi import Fore
 
 from .i18n import Lang
 
@@ -17,6 +18,13 @@ cli = CommandLine(
     _name="entari",
     load_preset=False,
 )
+
+
+def printer(exc: Exception) -> None:
+    print(f"{Fore.RED}[Error: {exc.__class__.__name__}]{Fore.RESET}: {exc!s}")
+
+
+cli.exception_printer = printer
 
 COMMANDS_MODULE_PATH = importlib.import_module("entari_cli.commands").__path__
 

@@ -1,7 +1,7 @@
 from typing import Any
 
 from tomlkit import TOMLDocument, table
-from tomlkit.items import Table, InlineTable, AoT, String
+from tomlkit.items import AoT, InlineTable, String, Table
 
 
 def print_flattened(doc):
@@ -52,6 +52,9 @@ def del_item(doc: TOMLDocument, key: str):
         del current[keys[-1]]  # type: ignore
 
 
-DEFAULT = {
+DEFAULT: dict[str, Any] = {
+    "editor": "",
     "install.package_manager": "pip",
+    "install.pre_run": "",
+    "install.args": "",
 }

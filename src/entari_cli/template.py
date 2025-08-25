@@ -124,7 +124,7 @@ authors = [
     {author}
 ]
 dependencies = [
-    "arclet.entari >= {entari_version}",
+    "arclet.entari[yaml,cron,reload,dotenv] >= {entari_version}",
 ]
 requires-python = {python_requirement}
 readme = "README.md"
@@ -136,11 +136,8 @@ WORKSPACE_PROJECT_TEMPLATE = """\
 name = "entari-workspace"
 version = "0.0.0"
 description = ""
-authors = [
-    {author}
-]
 dependencies = [
-    "arclet.entari >= {entari_version}",
+    "arclet.entari[{extra}] >= {entari_version}",
 ]
 requires-python = {python_requirement}
 """

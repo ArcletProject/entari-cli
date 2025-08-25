@@ -5,6 +5,7 @@
       "init": {
         "description": "Create a new Entari environment",
         "options": {
+          "develop": "Whether to install dependencies for development",
           "python": "Specify the Python interpreter path",
           "install_args": "Extra parameters for installation command passed to the package manager"
         },
@@ -95,6 +96,36 @@
           "not_supported": "Unsupported file extension: {suffix}",
           "current": "Current configuration file: {path}"
         }
+      },
+      "setting": {
+        "description": "Display the Entari-cli configuration",
+        "key": "Config key",
+        "value": "Config value",
+        "options": {
+          "local": "Use the local configuration file, usually .entari_cli.yaml in the project root",
+          "delete": "Unset a configuration key",
+          "edit": "Open the configuration file in the editor(defined by EDITOR env var or CLI setting)"
+        },
+        "edit": {
+          "failed_key": "Cannot specify an argument when `--edit` is given",
+          "failed_delete": "`--delete` doesn't work when `--edit` is given",
+          "success": "Configuration file edited successfully.",
+          "failed": "Editor {editor} exited abnormally"
+        },
+        "delete": {
+          "missing": "Please specify the configuration key to unset",
+          "success": "Configuration key '{key}' unset."
+        },
+        "set": {
+          "missing": "Please specify the configuration key to set",
+          "success": "Configuration key '{key}' set to '{value}'."
+        },
+        "get_failed": "No configuration key matches '{query}'",
+        "list": {
+          "title": "Site/default setting",
+          "global": "Global configuration file",
+          "local": "Local configuration file"
+        }
       }
     },
     "errors": {
@@ -104,9 +135,10 @@
     "project": {
       "select_python": "Please enter the Python interpreter path to use",
       "please_select": "Please select",
-      "install_failed": "Failed to install arclet-entari[full] with pip, please check the output above.",
+      "install_failed": "Failed to install {deps} with {pm}, please check the output above.",
       "no_python_found": "No Python interpreter found.",
-      "invalid_selection": "Invalid selection."
+      "invalid_selection": "Invalid selection.",
+      "fallback_pip": "{pm} not found, falling back to pip."
     },
     "config": {
       "ext_failed": "Failed to load config extension '{ext_mod}': {e}"
