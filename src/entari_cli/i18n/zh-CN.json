@@ -6,7 +6,7 @@
         "description": "新建一个虚拟环境并安装 Entari",
         "options": {
           "python": "指定 Python 解释器路径",
-          "pip_args": "传递给 pip 的额外参数"
+          "install_args": "传递给包管理器的安装指令的额外参数"
         },
         "messages": {
           "success": "Entari 环境初始化成功。",
@@ -36,7 +36,7 @@
           "optional": "是否仅存储插件配置而不加载插件",
           "priority": "插件加载优先级",
           "python": "指定 Python 解释器路径",
-          "pip_args": "传递给 pip 的额外参数"
+          "install_args": "传递给包管理器的安装指令的额外参数"
         },
         "prompts": {
           "is_plugin_project": "这是一个插件项目吗？",

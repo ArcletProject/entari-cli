@@ -5,6 +5,7 @@ from colorama import Fore
 
 from entari_cli import i18n_
 from entari_cli.config import EntariConfig
+from entari_cli.project import get_project_root
 
 
 @register("entari_cli.plugins")
@@ -24,7 +25,7 @@ class RemovePlugin(BasePlugin):
             name = result.query[str]("remove.name")
             if not name:
                 name = input(f"{Fore.BLUE}{i18n_.commands.remove.prompts.name()}{Fore.RESET}").strip()
-            cfg = EntariConfig.load(result.query[str]("cfg_path.path", None))
+            cfg = EntariConfig.load(result.query[str]("cfg_path.path", None), get_project_root())
             cfg.plugin.pop(name, None)
             cfg.save()
             return f"{Fore.GREEN}{i18n_.commands.remove.prompts.success(name=name)}{Fore.RESET}\n"

@@ -3,6 +3,7 @@ import re
 import shutil
 import subprocess
 import sys
+from typing import TYPE_CHECKING, Optional, cast
 
 from colorama import Fore
 
@@ -10,8 +11,13 @@ from entari_cli import i18n_
 from entari_cli.py_info import PythonInfo, iter_interpreters
 from entari_cli.utils import ask, is_conda_base_python
 from entari_cli.venv import create_virtualenv, get_venv_python
+from entari_cli.process import run_process
 
 PYTHON_VERSION = sys.version_info[:2]
+
+
+if TYPE_CHECKING:
+    from entari_cli.commands.setting import SelfSetting
 
 
 def get_user_email_from_git() -> tuple[str, str]:
@@ -77,3 +83,26 @@ def ensure_python(cwd: Path, python: str = "") -> PythonInfo:
         create_virtualenv(cwd / ".venv", str(selected_python.path), prompt)
         selected_python = PythonInfo.from_path(get_venv_python(cwd)[0])
     return selected_python
+
+
+def get_project_root() -> Path:
+    """Get the root directory of the current project."""
+    cwd = Path.cwd()
+    for parent in [cwd] + list(cwd.parents):
+        if (parent / "pyproject.toml").exists() or (parent / "setup.py").exists():
+            return parent
+    return cwd
+
+
+def install_dependencies(
+        setting: "SelfSetting",
+        deps: list[str],
+        python_path: Optional[str] = None,
+        install_args: Optional[tuple[str, ...]] = None,
+) -> None:
+    """Install dependencies using pip."""
+
+    def call_pip(*args):
+        return run_process(python_path or sys.executable, "-m", "pip", *args)
+
+    pm = setting.get_config("install.package_manager")

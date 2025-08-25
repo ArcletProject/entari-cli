@@ -8,6 +8,7 @@ from colorama import Fore
 
 from entari_cli import i18n_
 from entari_cli.config import EntariConfig
+from entari_cli.consts import YES, NO
 from entari_cli.process import call_pip
 from entari_cli.project import (
     PYTHON_VERSION,
@@ -40,7 +41,7 @@ class NewPlugin(BasePlugin):
             Option("-O|--optional", help_text=i18n_.commands.new.options.optional()),
             Option("-p|--priority", Args["num/", int], help_text=i18n_.commands.new.options.priority()),
             Option("-py|--python", Args["path/", str], help_text=i18n_.commands.new.options.python()),
-            Option("--pip-args", Args["params/", MultiVar(str)], help_text=i18n_.commands.new.options.pip_args()),
+            Option("--install-args", Args["params/", MultiVar(str)], help_text=i18n_.commands.new.options.install_args(), dest="install"),
             meta=CommandMeta(i18n_.commands.new.description()),
         )
 
@@ -58,27 +59,13 @@ class NewPlugin(BasePlugin):
             entari_version = "0.15.0"
             if not is_application:
                 ans = ask(i18n_.commands.new.prompts.is_plugin_project(), "Y/n").strip().lower()
-                is_application = ans in {"no", "false", "f", "0", "n", "n/a", "none", "nope", "nah"}
+                is_application = ans in NO
             if not is_application:
-                args = result.query[tuple[str, ...]]("new.pip_args.params", ())
+                args = result.query[tuple[str, ...]]("new.install.params", ())
                 python_path = sys.executable
                 if get_venv_like_prefix(sys.executable)[0] is None:
                     ans = ask(i18n_.venv.ask_create(), "Y/n").strip().lower()
-                    use_venv = ans in {
-                        "yes",
-                        "true",
-                        "t",
-                        "1",
-                        "y",
-                        "yea",
-                        "yeah",
-                        "yep",
-                        "sure",
-                        "ok",
-                        "okay",
-                        "",
-                        "y/n",
-                    }
+                    use_venv = ans in YES
                     if use_venv:
                         python_path = str(ensure_python(Path.cwd(), python).executable)
                 if not check_package_installed("arclet.entari", python_path):
@@ -115,11 +102,11 @@ class NewPlugin(BasePlugin):
             is_file = result.find("new.file")
             if not is_file:
                 ans = ask(i18n_.commands.new.prompts.is_single_file(), "Y/n").strip().lower()
-                is_file = ans in {"yes", "true", "t", "1", "y", "yea", "yeah", "yep", "sure", "ok", "okay", "", "y/n"}
+                is_file = ans in YES
             is_static = result.find("new.static")
             if not is_static:
                 ans = ask(i18n_.commands.new.prompts.is_disposable(), "Y/n").strip().lower()
-                is_static = ans in {"no", "false", "f", "0", "n", "n/a", "none", "nope", "nah"}
+                is_static = ans in NO
             if proj_name.startswith("entari-plugin-") and check_package_installed(file_name):
                 return f"{Fore.RED}{i18n_.commands.new.messages.installed(name=proj_name)}{Fore.RESET}"
             path = Path.cwd() / ("plugins" if is_application else "src")

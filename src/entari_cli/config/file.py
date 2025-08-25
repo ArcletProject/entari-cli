@@ -157,7 +157,7 @@ class EntariConfig:
         self.dumper(self.path, Path(path or self.path), self.dump(indent), indent)
 
     @classmethod
-    def load(cls, path: Union[str, os.PathLike[str], None] = None) -> "EntariConfig":
+    def load(cls, path: Union[str, os.PathLike[str], None] = None, cwd: Union[Path, None] = None) -> "EntariConfig":
         try:
             import dotenv
 
@@ -165,13 +165,14 @@ class EntariConfig:
         except ImportError:
             dotenv = None  # noqa
             pass
+        cwd = cwd or Path.cwd()
         if not path:
             if "ENTARI_CONFIG_FILE" in os.environ:
                 _path = Path(os.environ["ENTARI_CONFIG_FILE"])
-            elif (Path.cwd() / ".entari.json").exists():
-                _path = Path.cwd() / ".entari.json"
+            elif (cwd / ".entari.json").exists():
+                _path = cwd / ".entari.json"
             else:
-                _path = Path.cwd() / "entari.yml"
+                _path = cwd / "entari.yml"
         else:
             _path = Path(path)
         if "ENTARI_CONFIG_EXTENSION" in os.environ:
@@ -189,9 +190,6 @@ class EntariConfig:
         if not _path.is_file():
             raise ValueError(f"{_path} is not a file")
         return cls(_path)
-
-
-load_config = EntariConfig.load
 
 
 def register_loader(*ext: str):

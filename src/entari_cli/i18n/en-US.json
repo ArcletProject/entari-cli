@@ -6,7 +6,7 @@
         "description": "Create a new Entari environment",
         "options": {
           "python": "Specify the Python interpreter path",
-          "pip_args": "Extra parameters passed to pip"
+          "install_args": "Extra parameters for installation command passed to the package manager"
         },
         "messages": {
           "success": "Entari environment initialized successfully.",
@@ -36,7 +36,7 @@
           "optional": "Whether to store only the plugin configuration without loading the plugin",
           "priority": "Plugin loading priority",
           "python": "Specify the Python interpreter path",
-          "pip_args": "Extra parameters passed to pip"
+          "install_args": "Extra parameters for installation command passed to the package manager"
         },
         "prompts": {
           "is_plugin_project": "Is this an plugin project?",

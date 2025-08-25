@@ -20,7 +20,7 @@ class InitEnv(BasePlugin):
         return Alconna(
             "init",
             Option("-py|--python", Args["path/", str], help_text=i18n_.commands.init.options.python()),
-            Option("--pip-args", Args["params/", MultiVar(str)], help_text=i18n_.commands.init.options.pip_args()),
+            Option("--install-args", Args["params/", MultiVar(str)], help_text=i18n_.commands.init.options.install_args(), dest="install"),
             meta=CommandMeta(i18n_.commands.init.description()),
         )
 
@@ -33,8 +33,8 @@ class InitEnv(BasePlugin):
 
     def dispatch(self, result: Arparma, next_: Next):
         if result.find("init"):
-            python = result.query[str]("new.python.path", "")
-            args = result.query[tuple[str, ...]]("new.pip_args.params", ())
+            python = result.query[str]("init.python.path", "")
+            args = result.query[tuple[str, ...]]("init.install.params", ())
 
             python_path = sys.executable
             if get_venv_like_prefix(sys.executable)[0] is None:

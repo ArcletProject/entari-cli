@@ -17,6 +17,8 @@ from entari_cli.template import (
     YAML_PLUGIN_COMMON_TEMPLATE,
     YAML_PLUGIN_DEV_TEMPLATE,
 )
+from .path import ConfigPath  # noqa: F401
+from ...project import get_project_root
 
 
 def check_env(file: Path):
@@ -59,10 +61,11 @@ class ConfigPlugin(BasePlugin):
         if result.find("config.new"):
             is_dev = result.find("config.new.dev")
             names = result.query[tuple[str, ...]]("config.new.plugins.names", ())
-            if (path := result.query[str]("cfg_path.path", None)) is None:
-                _path = Path.cwd() / "entari.yml"
+            cwd = get_project_root()
+            if cfg_path := result.query[str]("cfg_path.path", None):
+                _path = Path(cfg_path)
             else:
-                _path = Path(path)
+                _path = cwd / "entari.yml"
             if _path.exists():
                 return i18n_.commands.config.messages.exist(path=_path)
             if _path.suffix.startswith(".json"):
@@ -91,7 +94,7 @@ class ConfigPlugin(BasePlugin):
                 return i18n_.commands.config.messages.created(path=_path)
             return i18n_.commands.config.messages.not_supported(suffix=_path.suffix)
         if result.find("config.current"):
-            cfg = EntariConfig.load()
+            cfg = EntariConfig.load(cwd=get_project_root())
             return i18n_.commands.config.messages.current(path=f"{Fore.BLUE}{cfg.path.resolve()!s}{Fore.RESET}")
         if result.find("config"):
             return self.command.get_help()

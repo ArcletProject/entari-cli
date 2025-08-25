@@ -131,6 +131,20 @@ readme = "README.md"
 license = {license}
 """
 
+WORKSPACE_PROJECT_TEMPLATE = """\
+[project]
+name = "entari-workspace"
+version = "0.0.0"
+description = ""
+authors = [
+    {author}
+]
+dependencies = [
+    "arclet.entari >= {entari_version}",
+]
+requires-python = {python_requirement}
+"""
+
 README_TEMPLATE = """\
 # {name}
 {description}

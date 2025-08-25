@@ -15,7 +15,7 @@
                   "subtype": "options",
                   "types": [
                     "python",
-                    "pip_args"
+                    "install_args"
                   ]
                 },
                 {
@@ -63,7 +63,7 @@
                     "optional",
                     "priority",
                     "python",
-                    "pip_args"
+                    "install_args"
                   ]
                 },
                 {

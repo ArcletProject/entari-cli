@@ -37,9 +37,9 @@
                       "description": "value of lang item type 'python'",
                       "type": "string"
                     },
-                    "pip_args": {
-                      "title": "pip_args",
-                      "description": "value of lang item type 'pip_args'",
+                    "install_args": {
+                      "title": "install_args",
+                      "description": "value of lang item type 'install_args'",
                       "type": "string"
                     }
                   }
@@ -175,9 +175,9 @@
                       "description": "value of lang item type 'python'",
                       "type": "string"
                     },
-                    "pip_args": {
-                      "title": "pip_args",
-                      "description": "value of lang item type 'pip_args'",
+                    "install_args": {
+                      "title": "install_args",
+                      "description": "value of lang item type 'install_args'",
                       "type": "string"
                     }
                   }

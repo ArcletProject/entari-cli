@@ -5,6 +5,7 @@ from colorama import Fore
 
 from entari_cli import i18n_
 from entari_cli.config import EntariConfig
+from entari_cli.project import get_project_root
 from entari_cli.py_info import check_package_installed
 
 
@@ -32,7 +33,7 @@ class AddPlugin(BasePlugin):
             name = result.query[str]("add.name")
             if not name:
                 name = input(f"{Fore.BLUE}{i18n_.commands.add.prompts.name}{Fore.RESET}").strip()
-            cfg = EntariConfig.load(result.query[str]("cfg_path.path", None))
+            cfg = EntariConfig.load(result.query[str]("cfg_path.path", None), get_project_root())
             name_ = name.replace("::", "arclet.entari.builtins.")
             if check_package_installed(name_):
                 pass
