@@ -1,0 +1,73 @@
+name: clean-image.yml
+on:
+  schedule:
+    - cron: '0 3 * * 1'  # Runs at 03:00 UTC every Monday
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ghcr-cleanup
+  cancel-in-progress: false
+
+jobs:
+  delete-untagged:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GHCR_TOKEN: ${{ secrets.GIT_TOKEN }}
+      OWNER: ${{ github.repository_owner }}
+      PACKAGES: entari-cli
+    steps:
+      - name: Delete untagged images
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          if [[ -n "${GIT_TOKEN:-}" ]]; then
+            export GH_TOKEN="$GIT_TOKEN"
+            echo "Using GIT_TOKEN for authentication"
+          else
+            echo "Using GITHUB_TOKEN for authentication"
+          fi
+          
+          owner_type=$(gh api /users/"$OWNER" -q '.type')
+          if [[ "$owner_type" == "Organization" ]]; then
+              owner_path="orgs"
+          else
+              owner_path="users"
+          fi
+          echo "Owner: $OWNER ($owner_type)"
+          
+          for pkg in $PACKAGES; do
+            echo "::group::Processing package: ghcr.io/$OWNER/$pkg"
+            json=$(gh api -H "Accept: application/vnd.github+json" --paginate "/$owner_path/$OWNER/packages/container/$pkg/versions?per_page=100" || true)
+            
+            if [[ -z "$json" || "$json" == "[]" ]]; then
+              echo "No versions found for package: $pkg"
+              echo "::endgroup::"
+              continue
+            fi
+          
+            mapfile -t ids < <(jq -r '.[] | select((.metadata.container.tags | length) == 0) | .id' <<< "$json")
+          
+            if [[ ${#ids[@]} -eq 0 ]]; then
+              echo "No untagged versions found for package: $pkg"
+              echo "::endgroup::"
+              continue
+            fi
+          
+            echo "Found ${#ids[@]} untagged versions for package: $pkg"
+            for id in "${ids[@]}"; do
+              echo "Deleting version ID: $id"
+              if gh api -X DELETE -H "Accept: application/vnd.github+json" "/$owner_path/$OWNER/packages/container/$pkg/versions/$id"; then
+                echo "Successfully deleted version ID: $id"
+              else
+                echo "Failed to delete version ID: $id"
+              fi
+              sleep 2  # To avoid hitting rate limits
+            done
+            echo "::endgroup::"
+          done
