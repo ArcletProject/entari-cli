@@ -15,7 +15,6 @@ class RunApplication(BasePlugin):
     def init(self):
         return Alconna(
             "run",
-            Option("-py|--python", Args["path/", str], help_text=i18n_.commands.run.options.python()),
             meta=CommandMeta(i18n_.commands.run.description()),
         )
 

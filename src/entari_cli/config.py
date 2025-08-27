@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from importlib import import_module
 from io import StringIO
@@ -8,9 +9,12 @@ import re
 from typing import Any, Callable, ClassVar, TypeVar, Union
 import warnings
 
+from colorama import Fore
 from ruamel.yaml import YAML
+from tomlkit import dumps, loads
 
 from entari_cli import i18n_
+from entari_cli.utils import ask
 
 ENV_CONTEXT_PAT = re.compile(r"['\"]?\$\{\{\s?env\.(?P<name>[^}\s]+)\s?\}\}['\"]?")
 T = TypeVar("T")
@@ -20,13 +24,28 @@ _loaders: dict[str, Callable[[str], dict]] = {}
 _dumpers: dict[str, Callable[[Path, dict, int], None]] = {}
 
 
+def check_env(file: Path):
+    env = Path.cwd() / ".env"
+    if env.exists():
+        lines = env.read_text(encoding="utf-8").splitlines()
+        for i, line in enumerate(lines):
+            if line.startswith("ENTARI_CONFIG_FILE"):
+                lines[i] = f"ENTARI_CONFIG_FILE='{file.resolve().as_posix()}'"
+                with env.open("w", encoding="utf-8") as f:
+                    f.write("\n".join(lines))
+                break
+    else:
+        with env.open("w+", encoding="utf-8") as f:
+            f.write(f"\nENTARI_CONFIG_FILE='{file.resolve().as_posix()}'")
+
+
 @dataclass
 class EntariConfig:
     path: Path
-    basic: dict[str, Any] = field(default_factory=dict, init=False)
-    plugin: dict[str, dict] = field(default_factory=dict, init=False)
-    prelude_plugin: list[str] = field(default_factory=list, init=False)
-    plugin_extra_files: list[str] = field(default_factory=list, init=False)
+    basic: dict[str, Any] = field(init=False)
+    plugin: dict[str, dict] = field(init=False)
+    prelude_plugin: list[str] = field(init=False)
+    plugin_extra_files: list[str] = field(init=False)
     save_flag: bool = field(default=False)
     _origin_data: dict[str, Any] = field(init=False)
 
@@ -47,13 +66,9 @@ class EntariConfig:
 
     @classmethod
     def dumper(cls, path: Path, save_path: Path, data: dict, indent: int):
-        if not path.exists():
-            return
-        origin = cls.loader(path)
+        origin = cls.loader(path) if path.exists() else data
         if "entari" in origin:
             origin["entari"] = data
-        else:
-            origin = data
         end = save_path.suffix.split(".")[-1]
         if end in _dumpers:
             _dumpers[end](save_path, origin, indent)
@@ -89,9 +104,9 @@ class EntariConfig:
         data = self.loader(self.path)
         if "entari" in data:
             data = data["entari"]
-        self.basic = data.get("basic", {})
+        self.basic = data.setdefault("basic", {})
         self._origin_data = data
-        self.plugin = data.get("plugins", {})
+        self.plugin = data.setdefault("plugins", {})
         self.plugin_extra_files: list[str] = self.plugin.get("$files", [])  # type: ignore
         self.prelude_plugin = self.plugin.get("$prelude", [])  # type: ignore
         for key in list(self.plugin.keys()):
@@ -119,7 +134,7 @@ class EntariConfig:
         return True
 
     def dump(self, indent: int = 2):
-        basic = self._origin_data.get("basic", {})
+        basic = self._origin_data.setdefault("basic", {})
         if "log" not in basic and ("log_level" in basic or "log_ignores" in basic):
             basic["log"] = {}
             if "log_level" in basic:
@@ -171,6 +186,8 @@ class EntariConfig:
                 _path = Path(os.environ["ENTARI_CONFIG_FILE"])
             elif (cwd / ".entari.json").exists():
                 _path = cwd / ".entari.json"
+            elif (cwd / "entari.toml").exists():
+                _path = cwd / ".entari.toml"
             else:
                 _path = cwd / "entari.yml"
         else:
@@ -180,7 +197,7 @@ class EntariConfig:
             for ext_mod in ext_mods:
                 if not ext_mod:
                     continue
-                ext_mod = ext_mod.replace("::", "entari_cli.config.format.")
+                ext_mod = ext_mod.replace("::", "arclet.entari.config.format.")
                 try:
                     import_module(ext_mod)
                 except ImportError as e:
@@ -240,3 +257,63 @@ def yaml_dumper(save_path: Path, origin: dict, indent: int):
     yaml.indent(mapping=indent, sequence=indent + 2, offset=indent)
     with save_path.open("w+", encoding="utf-8") as f:
         yaml.dump(origin, f)
+
+
+@register_loader("toml")
+def toml_loader(text: str) -> dict[str, Any]:
+    """
+    Load a TOML file and return its content as a dictionary.
+    """
+    if loads is None:
+        raise RuntimeError("tomlkit is not installed. Please install with `arclet-entari[toml]`")
+    return loads(text)
+
+
+@register_dumper("toml")
+def toml_dumper(save_path: Path, origin: dict[str, Any], indent: int = 4):
+    """
+    Dump a dictionary to a TOML file.
+    """
+    if dumps is None:
+        raise RuntimeError("tomlkit is not installed. Please install with `arclet-entari[toml]`")
+    with open(save_path, "w+", encoding="utf-8") as f:
+        f.write(dumps(origin))
+
+
+@contextmanager
+def create_config(cfg_path: Union[str, None], is_dev: bool = False, format_: Union[str, None] = None):
+    if cfg_path:
+        _path = Path(cfg_path)
+    else:
+        if format_ is None:
+            format_ = ask(i18n_.config.ask_format(), "yaml").strip().lower()
+        if format_ not in {"yaml", "yml", "json", "toml"}:
+            return f"{Fore.RED}{i18n_.config.not_supported(suffix=format_)}{Fore.RESET}"
+        _path = Path.cwd() / f"{'.entari' if format_ in {'json', 'toml'} else 'entari'}.{format_}"
+    obj = EntariConfig.load(_path)
+    if _path.exists():
+        print(i18n_.config.exists(path=_path))
+    else:
+        obj.basic |= {
+            "network": [{"type": "websocket", "host": "127.0.0.1", "port": 5140, "path": "satori"}],
+            "ignore_self_message": True,
+            "log": {"level": "info"},
+            "prefix": ["/"],
+        }
+        if is_dev:
+            obj.plugin |= {  # type: ignore
+                "$prelude": ["::auto_reload"],
+                ".record_message": {
+                    "record_send": True,
+                },
+                "::echo": {},
+                "::help": {},
+                "::inspect": {},
+                "::auto_reload": {"watch_config": True},
+            }
+        else:
+            obj.plugin |= {".record_message": {}, "::echo": {}, "::help": {}, "::inspect": {}}
+        print(i18n_.config.created(path=_path))
+    yield obj
+    obj.save()
+    check_env(_path)

@@ -6,7 +6,7 @@
         "description": "Create a new Entari environment",
         "options": {
           "develop": "Whether to install dependencies for development",
-          "python": "Specify the Python interpreter path",
+          "python": "Specify the Python version/path to use",
           "install_args": "Extra parameters for installation command passed to the package manager"
         },
         "messages": {
@@ -36,7 +36,7 @@
           "disabled": "Whether the plugin is initially disabled",
           "optional": "Whether to store only the plugin configuration without loading the plugin",
           "priority": "Plugin loading priority",
-          "python": "Specify the Python interpreter path",
+          "python": "Specify the Python version/path to use",
           "install_args": "Extra parameters for installation command passed to the package manager"
         },
         "prompts": {
@@ -57,7 +57,9 @@
           "keep": "If you want to keep the name, please use option {opt}.",
           "installed": "'{name}' already installed, please use another name.",
           "exists": "Plugin {name} already exists in the configuration file.",
-          "created": "Plugin created at {path}."
+          "created": "Plugin created at {path}.",
+          "proj_exists": "You have already been in a project directory, please create an application plugin instead.",
+          "in_venv": "Cannot create a new plugin project inside a existing project."
         }
       },
       "remove": {
@@ -82,21 +84,7 @@
       "version": {
         "description": "show the version and exit"
       },
-      "config": {
-        "path": "Specify the configuration path",
-        "description": "Configuration operations",
-        "options": {
-          "new": "Create a new Entari Configuration",
-          "current": "View the current configuration file",
-          "dev": "Whether to generate a development configuration"
-        },
-        "messages": {
-          "exist": "{path} already exists",
-          "created": "Configuration file created at {path}",
-          "not_supported": "Unsupported file extension: {suffix}",
-          "current": "Current configuration file: {path}"
-        }
-      },
+      "config_path": "Specify the configuration path",
       "setting": {
         "description": "Display the Entari-cli configuration",
         "key": "Config key",
@@ -141,7 +129,11 @@
       "fallback_pip": "{pm} not found, falling back to pip."
     },
     "config": {
-      "ext_failed": "Failed to load config extension '{ext_mod}': {e}"
+      "ext_failed": "Failed to load config extension '{ext_mod}': {e}",
+      "exists": "{path} already exists.",
+      "not_supported": "Unsupported file extension: {suffix}",
+      "ask_format": "Please choose a configuration file format:",
+      "created": "Configuration file created at {path}"
     },
     "venv": {
       "use": "Using virtual environment Python: {venv_python}",

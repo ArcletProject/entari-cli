@@ -55,7 +55,6 @@ def del_item(doc: TOMLDocument, key: str):
 DEFAULT: dict[str, Any] = {
     "editor": "",
     "install.package_manager": "pip",
-    "install.pre_run": "",
     "install.command": "install",
     "install.args": "",
 }

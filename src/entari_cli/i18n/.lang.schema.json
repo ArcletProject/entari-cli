@@ -280,6 +280,16 @@
                       "title": "created",
                       "description": "value of lang item type 'created'",
                       "type": "string"
+                    },
+                    "proj_exists": {
+                      "title": "proj_exists",
+                      "description": "value of lang item type 'proj_exists'",
+                      "type": "string"
+                    },
+                    "in_venv": {
+                      "title": "in_venv",
+                      "description": "value of lang item type 'in_venv'",
+                      "type": "string"
                     }
                   }
                 }
@@ -381,74 +391,10 @@
                 }
               }
             },
-            "config": {
-              "title": "Config",
-              "description": "Scope 'config' of lang item",
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "path": {
-                  "title": "path",
-                  "description": "value of lang item type 'path'",
-                  "type": "string"
-                },
-                "description": {
-                  "title": "description",
-                  "description": "value of lang item type 'description'",
-                  "type": "string"
-                },
-                "options": {
-                  "title": "Options",
-                  "description": "Scope 'options' of lang item",
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "new": {
-                      "title": "new",
-                      "description": "value of lang item type 'new'",
-                      "type": "string"
-                    },
-                    "current": {
-                      "title": "current",
-                      "description": "value of lang item type 'current'",
-                      "type": "string"
-                    },
-                    "dev": {
-                      "title": "dev",
-                      "description": "value of lang item type 'dev'",
-                      "type": "string"
-                    }
-                  }
-                },
-                "messages": {
-                  "title": "Messages",
-                  "description": "Scope 'messages' of lang item",
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "exist": {
-                      "title": "exist",
-                      "description": "value of lang item type 'exist'",
-                      "type": "string"
-                    },
-                    "created": {
-                      "title": "created",
-                      "description": "value of lang item type 'created'",
-                      "type": "string"
-                    },
-                    "not_supported": {
-                      "title": "not_supported",
-                      "description": "value of lang item type 'not_supported'",
-                      "type": "string"
-                    },
-                    "current": {
-                      "title": "current",
-                      "description": "value of lang item type 'current'",
-                      "type": "string"
-                    }
-                  }
-                }
-              }
+            "config_path": {
+              "title": "config_path",
+              "description": "value of lang item type 'config_path'",
+              "type": "string"
             },
             "setting": {
               "title": "Setting",
@@ -617,6 +563,26 @@
             "ext_failed": {
               "title": "ext_failed",
               "description": "value of lang item type 'ext_failed'",
+              "type": "string"
+            },
+            "ask_format": {
+              "title": "ask_format",
+              "description": "value of lang item type 'ask_format'",
+              "type": "string"
+            },
+            "not_supported": {
+              "title": "not_supported",
+              "description": "value of lang item type 'not_supported'",
+              "type": "string"
+            },
+            "exists": {
+              "title": "exists",
+              "description": "value of lang item type 'exists'",
+              "type": "string"
+            },
+            "created": {
+              "title": "created",
+              "description": "value of lang item type 'created'",
               "type": "string"
             }
           }

@@ -1,6 +1,7 @@
 import importlib
 import pkgutil
 
+# import traceback
 from clilte import CommandLine
 from colorama.ansi import Fore
 
@@ -22,6 +23,7 @@ cli = CommandLine(
 
 def printer(exc: Exception) -> None:
     print(f"{Fore.RED}[Error: {exc.__class__.__name__}]{Fore.RESET}: {exc!s}")
+    # traceback.print_exception(type(exc), exc, exc.__traceback__)
 
 
 cli.exception_printer = printer

@@ -70,6 +70,8 @@ class EntariCliCommandsNewMessages:
     installed: LangItem = LangItem("entari_cli", "commands.new.messages.installed")
     exists: LangItem = LangItem("entari_cli", "commands.new.messages.exists")
     created: LangItem = LangItem("entari_cli", "commands.new.messages.created")
+    proj_exists: LangItem = LangItem("entari_cli", "commands.new.messages.proj_exists")
+    in_venv: LangItem = LangItem("entari_cli", "commands.new.messages.in_venv")
 
 
 class EntariCliCommandsNew:
@@ -109,26 +111,6 @@ class EntariCliCommandsGenerate:
 
 class EntariCliCommandsVersion:
     description: LangItem = LangItem("entari_cli", "commands.version.description")
-
-
-class EntariCliCommandsConfigOptions:
-    new: LangItem = LangItem("entari_cli", "commands.config.options.new")
-    current: LangItem = LangItem("entari_cli", "commands.config.options.current")
-    dev: LangItem = LangItem("entari_cli", "commands.config.options.dev")
-
-
-class EntariCliCommandsConfigMessages:
-    exist: LangItem = LangItem("entari_cli", "commands.config.messages.exist")
-    created: LangItem = LangItem("entari_cli", "commands.config.messages.created")
-    not_supported: LangItem = LangItem("entari_cli", "commands.config.messages.not_supported")
-    current: LangItem = LangItem("entari_cli", "commands.config.messages.current")
-
-
-class EntariCliCommandsConfig:
-    path: LangItem = LangItem("entari_cli", "commands.config.path")
-    description: LangItem = LangItem("entari_cli", "commands.config.description")
-    options = EntariCliCommandsConfigOptions
-    messages = EntariCliCommandsConfigMessages
 
 
 class EntariCliCommandsSettingOptions:
@@ -180,7 +162,7 @@ class EntariCliCommands:
     run = EntariCliCommandsRun
     generate = EntariCliCommandsGenerate
     version = EntariCliCommandsVersion
-    config = EntariCliCommandsConfig
+    config_path: LangItem = LangItem("entari_cli", "commands.config_path")
     setting = EntariCliCommandsSetting
 
 
@@ -191,6 +173,10 @@ class EntariCliErrors:
 
 class EntariCliConfig:
     ext_failed: LangItem = LangItem("entari_cli", "config.ext_failed")
+    ask_format: LangItem = LangItem("entari_cli", "config.ask_format")
+    not_supported: LangItem = LangItem("entari_cli", "config.not_supported")
+    exists: LangItem = LangItem("entari_cli", "config.exists")
+    created: LangItem = LangItem("entari_cli", "config.created")
 
 
 class EntariCliProject:

@@ -111,12 +111,6 @@ def install_dependencies(
     de_install_cmd = setting.get_config("install.command")
     if de_install_args:
         install_args = (*de_install_args.split(","), *install_args)
-    pre_run = setting.get_config("install.pre_run")
-    if pre_run:
-        proc = subprocess.Popen(pre_run, shell=True)
-        if (ret_code := proc.wait()) != 0:
-            print(f"{Fore.RED}{i18n_.project.install_failed(deps=', '.join(deps), pm=pm)}{Fore.RESET}")
-            return ret_code
     if pm == "pip":
         ret_code = call_pip("install", *install_args, *deps)
     else:

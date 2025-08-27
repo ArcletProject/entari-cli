@@ -7,11 +7,12 @@ from clilte.core import CommandLine, Next
 from colorama import Fore
 
 from entari_cli import i18n_
-from entari_cli.config import EntariConfig
+from entari_cli.config import create_config
 from entari_cli.consts import NO, YES
 from entari_cli.project import (
     PYTHON_VERSION,
     ensure_python,
+    get_project_root,
     get_user_email_from_git,
     install_dependencies,
     sanitize_project_name,
@@ -64,10 +65,13 @@ class NewPlugin(BasePlugin):
             is_application = result.find("new.application")
             python = result.query[str]("new.python.path", "")
             entari_version = "0.15.0"
+            toml_path = Path.cwd() / "pyproject.toml"
             if not is_application:
                 ans = ask(i18n_.commands.new.prompts.is_plugin_project(), "Y/n").strip().lower()
                 is_application = ans in NO
             if not is_application:
+                if toml_path.exists() or get_project_root().resolve() != Path.cwd().resolve():
+                    return f"{Fore.RED}{i18n_.commands.new.messages.proj_exists()}{Fore.RESET}"
                 args = result.query[tuple[str, ...]]("new.install.params", ())
                 python_path = sys.executable
                 if get_venv_like_prefix(sys.executable)[0] is None:
@@ -139,39 +143,36 @@ class NewPlugin(BasePlugin):
                     )
                 )
             if not is_application:
-                toml_path = Path.cwd() / "pyproject.toml"
-                if not toml_path.exists():
-                    with toml_path.open("w+", encoding="utf-8") as f:
-                        f.write(
-                            PLUGIN_PROJECT_TEMPLATE.format(
-                                name=proj_name,
-                                version=version,
-                                description=description,
-                                author=f'{{"name" = "{author}", "email" = "{email}"}}',
-                                entari_version=entari_version,
-                                python_requirement=f'"{python_requires}"',
-                                license=f'{{"text" = "{licence}"}}',
-                            )
+                with toml_path.open("w+", encoding="utf-8") as f:
+                    f.write(
+                        PLUGIN_PROJECT_TEMPLATE.format(
+                            name=proj_name,
+                            version=version,
+                            description=description,
+                            author=f'{{"name" = "{author}", "email" = "{email}"}}',
+                            entari_version=entari_version,
+                            python_requirement=f'"{python_requires}"',
+                            license=f'{{"text" = "{licence}"}}',
                         )
+                    )
                 readme_path = Path.cwd() / "README.md"
                 if not readme_path.exists():
                     with readme_path.open("w+", encoding="utf-8") as f:
                         f.write(README_TEMPLATE.format(name=proj_name, description=description))
-            cfg = EntariConfig.load(result.query[str]("cfg_path.path", None))
-            if (
-                file_name in cfg.plugin
-                or f"entari_plugin_{file_name}" in cfg.plugin
-                or file_name.removeprefix("entari_plugin_") in cfg.plugin
-            ):
-                return f"{Fore.RED}{i18n_.commands.new.messages.exists(name=file_name)}{Fore.RESET}"
-            cfg.plugin[file_name] = {}
-            if result.find("new.disabled"):
-                cfg.plugin[file_name]["$disable"] = True
-            if result.find("new.optional"):
-                cfg.plugin[file_name]["$optional"] = True
-            if result.find("new.priority"):
-                cfg.plugin[file_name]["priority"] = result.query[int]("new.priority.num", 16)
-            cfg.basic.setdefault("external_dirs", []).append("plugins" if is_application else "src")
-            cfg.save()
+            with create_config(result.query[str]("cfg_path.path"), True) as cfg:
+                if (
+                    file_name in cfg.plugin
+                    or f"entari_plugin_{file_name}" in cfg.plugin
+                    or file_name.removeprefix("entari_plugin_") in cfg.plugin
+                ):
+                    return f"{Fore.RED}{i18n_.commands.new.messages.exists(name=file_name)}{Fore.RESET}"
+                cfg.plugin[file_name] = {}
+                if result.find("new.disabled"):
+                    cfg.plugin[file_name]["$disable"] = True
+                if result.find("new.optional"):
+                    cfg.plugin[file_name]["$optional"] = True
+                if result.find("new.priority"):
+                    cfg.plugin[file_name]["priority"] = result.query[int]("new.priority.num", 16)
+                cfg.basic.setdefault("external_dirs", []).append("plugins" if is_application else "src")
             return f"{Fore.GREEN}{i18n_.commands.new.messages.created(path=str(path))}{Fore.RESET}"
         return next_(None)

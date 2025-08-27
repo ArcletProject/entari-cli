@@ -90,7 +90,9 @@
                     "keep",
                     "installed",
                     "exists",
-                    "created"
+                    "created",
+                    "proj_exists",
+                    "in_venv"
                   ]
                 }
               ]
@@ -138,30 +140,7 @@
                 "description"
               ]
             },
-            {
-              "subtype": "config",
-              "types": [
-                "path",
-                "description",
-                {
-                  "subtype": "options",
-                  "types": [
-                    "new",
-                    "current",
-                    "dev"
-                  ]
-                },
-                {
-                  "subtype": "messages",
-                  "types": [
-                    "exist",
-                    "created",
-                    "not_supported",
-                    "current"
-                  ]
-                }
-              ]
-            },
+            "config_path",
             {
               "subtype": "setting",
               "types": [
@@ -222,7 +201,11 @@
         {
           "subtype": "config",
           "types": [
-            "ext_failed"
+            "ext_failed",
+            "ask_format",
+            "not_supported",
+            "exists",
+            "created"
           ]
         },
         {
