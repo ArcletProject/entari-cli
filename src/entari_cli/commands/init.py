@@ -1,4 +1,3 @@
-from pathlib import Path
 import sys
 
 from arclet.alconna import Alconna, Args, Arparma, CommandMeta, MultiVar, Option
@@ -9,12 +8,12 @@ import tomlkit
 
 from entari_cli import i18n_
 from entari_cli.config import create_config
-from entari_cli.project import ensure_python, install_dependencies
+from entari_cli.project import ensure_python, get_project_root, install_dependencies
 from entari_cli.py_info import PythonInfo, check_package_installed, get_package_version
 from entari_cli.setting import set_item
 from entari_cli.template import WORKSPACE_PROJECT_TEMPLATE
 from entari_cli.utils import ask
-from entari_cli.venv import get_venv_like_prefix
+from entari_cli.venv import get_in_project_venv, get_venv_like_prefix
 
 
 @register("entari_cli.plugins")
@@ -44,21 +43,22 @@ class InitEnv(BasePlugin):
         from entari_cli.commands.setting import SelfSetting
 
         if result.find("init"):
+            cwd = get_project_root()
             python = result.query[str]("init.python.path", "")
             args = result.query[tuple[str, ...]]("init.install.params", ())
             is_dev = result.find("init.dev")
-            extra = ["yaml", "cron"]
+            extra = ["yaml", "cron", "dotenv"]
             if is_dev:
-                extra += ["reload", "dotenv"]
+                extra += ["reload"]
             extras = ",".join(extra)
             python_path = sys.executable
-            if get_venv_like_prefix(sys.executable)[0] is None:
+            if get_venv_like_prefix(sys.executable)[0] is None or get_in_project_venv(cwd) is None:
                 ans = ask(i18n_.venv.ask_create(), "Y/n").strip().lower()
                 use_venv = ans in {"yes", "true", "t", "1", "y", "yea", "yeah", "yep", "sure", "ok", "okay", "", "y/n"}
                 if use_venv:
-                    python_path = str(ensure_python(Path.cwd(), python).executable)
+                    python_path = str(ensure_python(cwd, python).executable)
                 print(f"{Fore.GREEN}{i18n_.commands.init.messages.success()}{Fore.RESET}")
-            toml_file = Path.cwd() / "pyproject.toml"
+            toml_file = cwd / "pyproject.toml"
             if not toml_file.exists():
                 info = PythonInfo.from_path(python_path)
                 with toml_file.open("w", encoding="utf-8") as f:

@@ -188,6 +188,10 @@ class EntariConfig:
                 _path = cwd / ".entari.json"
             elif (cwd / "entari.toml").exists():
                 _path = cwd / ".entari.toml"
+            elif (cwd / ".entari.toml").exists():
+                _path = cwd / ".entari.toml"
+            elif (cwd / "entari.yaml").exists():
+                _path = cwd / "entari.yaml"
             else:
                 _path = cwd / "entari.yml"
         else:
@@ -286,7 +290,7 @@ def create_config(cfg_path: Union[str, None], is_dev: bool = False, format_: Uni
         _path = Path(cfg_path)
     else:
         if format_ is None:
-            format_ = ask(i18n_.config.ask_format(), "yaml").strip().lower()
+            format_ = ask(i18n_.config.ask_format(), "yml").strip().lower()
         if format_ not in {"yaml", "yml", "json", "toml"}:
             return f"{Fore.RED}{i18n_.config.not_supported(suffix=format_)}{Fore.RESET}"
         _path = Path.cwd() / f"{'.entari' if format_ in {'json', 'toml'} else 'entari'}.{format_}"

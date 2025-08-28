@@ -1,6 +1,7 @@
+from collections.abc import Mapping
 import os
 import subprocess
-from typing import Any, Mapping
+from typing import Any
 
 from arclet.alconna import Alconna, Args, Arparma, CommandMeta, Option
 from clilte import BasePlugin, PluginMetadata, register
@@ -151,12 +152,12 @@ class SelfSetting(BasePlugin):
             )
             if global_cfg:
                 print(
-                    f"\n{Style.BRIGHT}{i18n_.commands.setting.list.global_()} ({Fore.GREEN}{user_config_path('entari-cli', appauthor=False) / 'config.toml'}{Fore.RESET}){Style.RESET_ALL}"
+                    f"\n{Style.BRIGHT}{i18n_.commands.setting.list.global_()} ({Fore.GREEN}{user_config_path('entari-cli', appauthor=False) / 'config.toml'}{Fore.RESET}){Style.RESET_ALL}"  # noqa: E501
                 )
                 self._show_config(dict(print_flattened(global_cfg)), {})
             if local_cfg:
                 print(
-                    f"\n{Style.BRIGHT}{i18n_.commands.setting.list.local()} ({Fore.GREEN}{get_project_root() / '.entari_cli.toml'}{Fore.RESET}){Style.RESET_ALL}"
+                    f"\n{Style.BRIGHT}{i18n_.commands.setting.list.local()} ({Fore.GREEN}{get_project_root() / '.entari_cli.toml'}{Fore.RESET}){Style.RESET_ALL}"  # noqa: E501
                 )
                 self._show_config(dict(print_flattened(local_cfg)), {})
             return

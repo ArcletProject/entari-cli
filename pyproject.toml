@@ -72,7 +72,6 @@ extra_standard_library = ["typing_extensions"]
 [tool.ruff]
 line-length = 120
 target-version = "py39"
-include = ["arclet/**.py"]
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "UP", "C", "T", "PYI", "PT", "Q"]
@@ -84,4 +83,4 @@ pythonPlatform = "All"
 typeCheckingMode = "basic"
 
 [tool.pdm.scripts]
-format = { composite = ["isort ./src/entari_cli","black ./src/entari_cli","ruff check ./src/entari_cli/*"] }
+format = { composite = ["isort ./src/","black ./src/","ruff check ./src/"] }

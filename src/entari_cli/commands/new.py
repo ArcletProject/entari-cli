@@ -5,6 +5,7 @@ from arclet.alconna import Alconna, Args, Arparma, CommandMeta, MultiVar, Option
 from clilte import BasePlugin, PluginMetadata, register
 from clilte.core import CommandLine, Next
 from colorama import Fore
+import tomlkit
 
 from entari_cli import i18n_
 from entari_cli.config import create_config
@@ -18,7 +19,8 @@ from entari_cli.project import (
     sanitize_project_name,
     validate_project_name,
 )
-from entari_cli.py_info import check_package_installed, get_package_version
+from entari_cli.py_info import PythonInfo, check_package_installed, get_package_version
+from entari_cli.setting import set_item
 from entari_cli.template import (
     PLUGIN_DEFAULT_TEMPLATE,
     PLUGIN_PROJECT_TEMPLATE,
@@ -26,7 +28,7 @@ from entari_cli.template import (
     README_TEMPLATE,
 )
 from entari_cli.utils import ask
-from entari_cli.venv import get_venv_like_prefix
+from entari_cli.venv import get_in_project_venv, get_venv_like_prefix
 
 
 @register("entari_cli.plugins")
@@ -64,34 +66,17 @@ class NewPlugin(BasePlugin):
         if result.find("new"):
             is_application = result.find("new.application")
             python = result.query[str]("new.python.path", "")
-            entari_version = "0.15.0"
+            cwd = get_project_root()
             toml_path = Path.cwd() / "pyproject.toml"
+
             if not is_application:
                 ans = ask(i18n_.commands.new.prompts.is_plugin_project(), "Y/n").strip().lower()
                 is_application = ans in NO
-            if not is_application:
-                if toml_path.exists() or get_project_root().resolve() != Path.cwd().resolve():
-                    return f"{Fore.RED}{i18n_.commands.new.messages.proj_exists()}{Fore.RESET}"
-                args = result.query[tuple[str, ...]]("new.install.params", ())
-                python_path = sys.executable
-                if get_venv_like_prefix(sys.executable)[0] is None:
-                    ans = ask(i18n_.venv.ask_create(), "Y/n").strip().lower()
-                    use_venv = ans in YES
-                    if use_venv:
-                        python_path = str(ensure_python(Path.cwd(), python).executable)
-                if not check_package_installed("arclet.entari", python_path):
-                    ret_code = install_dependencies(
-                        CommandLine.current().get_plugin(SelfSetting),  # type: ignore
-                        [f"arclet.entari[yaml,cron,reload.dotenv]"],
-                        python_path,
-                        args,
-                    )
-                    if ret_code != 0:
-                        return
-                entari_version = get_package_version("arclet.entari", python_path) or entari_version
+            if not is_application and (toml_path.exists() or cwd.resolve() != Path.cwd().resolve()):
+                return f"{Fore.RED}{i18n_.commands.new.messages.proj_exists()}{Fore.RESET}"
+
             name = result.query[str]("new.name")
             if not name:
-                cwd = Path.cwd()
                 name = ask(i18n_.commands.new.prompts.plugin_name(), None if is_application else cwd.name)
             if not validate_project_name(name):
                 return f"{Fore.RED}{i18n_.commands.new.messages.invalid(name=repr(name))}{Fore.RESET}"
@@ -108,13 +93,60 @@ class NewPlugin(BasePlugin):
             git_user, git_email = get_user_email_from_git()
             author = ask(i18n_.commands.new.prompts.plugin_author_name(), git_user)
             email = ask(i18n_.commands.new.prompts.plugin_author_email(), git_email)
+
             if not is_application:
-                default_python_requires = f">={PYTHON_VERSION[0]}.{PYTHON_VERSION[1]}"
-                python_requires = ask(i18n_.commands.new.prompts.python_requires(), default_python_requires)
                 licence = ask(i18n_.commands.new.prompts.license(), "MIT")
-            else:
-                python_requires = ""
-                licence = ""
+
+                readme_path = Path.cwd() / "README.md"
+                if not readme_path.exists():
+                    with readme_path.open("w+", encoding="utf-8") as f:
+                        f.write(README_TEMPLATE.format(name=proj_name, description=description))
+
+                with toml_path.open("w+", encoding="utf-8") as f:
+                    f.write(
+                        PLUGIN_PROJECT_TEMPLATE.format(
+                            name=proj_name,
+                            version=version,
+                            description=description,
+                            author=f'{{"name" = "{author}", "email" = "{email}"}}',
+                            entari_version="0.15.1",
+                            python_requirement=f'">={PYTHON_VERSION[0]}.{PYTHON_VERSION[1]}"',
+                            license=f'{{"text" = "{licence}"}}',
+                        )
+                    )
+
+                args = result.query[tuple[str, ...]]("new.install.params", ())
+                python_path = sys.executable
+                if get_venv_like_prefix(sys.executable)[0] is None or get_in_project_venv(cwd) is None:
+                    ans = ask(i18n_.venv.ask_create(), "Y/n").strip().lower()
+                    use_venv = ans in YES
+                    if use_venv:
+                        python_path = str(ensure_python(Path.cwd(), python).executable)
+
+                if not check_package_installed("arclet.entari", python_path):
+                    ret_code = install_dependencies(
+                        CommandLine.current().get_plugin(SelfSetting),  # type: ignore
+                        ["arclet.entari[yaml,cron,reload,dotenv]"],
+                        python_path,
+                        args,
+                    )
+                    if ret_code != 0:
+                        return
+                entari_version = get_package_version("arclet.entari", python_path) or "0.15.1"
+                info = PythonInfo.from_path(python_path)
+                default_python_requires = f">={info.major}.{info.minor}"
+                python_requires = ask(i18n_.commands.new.prompts.python_requires(), default_python_requires)
+
+                with toml_path.open("a+", encoding="utf-8") as f:
+                    f.seek(0)
+                    proj = tomlkit.load(f)
+                    set_item(
+                        proj, "project.dependencies", [f"arclet.entari[yaml,cron,reload,dotenv] >= {entari_version}"]
+                    )
+                    set_item(proj, "project.requires-python", python_requires)
+                    f.truncate(0)
+                    tomlkit.dump(proj, f)
+
             is_file = result.find("new.file")
             if not is_file:
                 ans = ask(i18n_.commands.new.prompts.is_single_file(), "Y/n").strip().lower()
@@ -142,23 +174,6 @@ class NewPlugin(BasePlugin):
                         description=description,
                     )
                 )
-            if not is_application:
-                with toml_path.open("w+", encoding="utf-8") as f:
-                    f.write(
-                        PLUGIN_PROJECT_TEMPLATE.format(
-                            name=proj_name,
-                            version=version,
-                            description=description,
-                            author=f'{{"name" = "{author}", "email" = "{email}"}}',
-                            entari_version=entari_version,
-                            python_requirement=f'"{python_requires}"',
-                            license=f'{{"text" = "{licence}"}}',
-                        )
-                    )
-                readme_path = Path.cwd() / "README.md"
-                if not readme_path.exists():
-                    with readme_path.open("w+", encoding="utf-8") as f:
-                        f.write(README_TEMPLATE.format(name=proj_name, description=description))
             with create_config(result.query[str]("cfg_path.path"), True) as cfg:
                 if (
                     file_name in cfg.plugin

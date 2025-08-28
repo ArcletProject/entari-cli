@@ -40,7 +40,7 @@ class AddPlugin(BasePlugin):
             elif not name_.count(".") and check_package_installed(f"entari_plugin_{name_}"):
                 pass
             else:
-                return f"{Fore.RED}{i18n_.commands.add.prompts.failed(name=f'{Fore.BLUE}{name_}', cmd=f'{Fore.GREEN}`entari new {name_}`')}{Fore.RESET}\n"
+                return f"{Fore.RED}{i18n_.commands.add.prompts.failed(name=f'{Fore.BLUE}{name_}', cmd=f'{Fore.GREEN}`entari new {name_}`')}{Fore.RESET}\n"  # noqa: E501
             cfg.plugin[name] = {}
             if result.find("add.disabled"):
                 cfg.plugin[name]["$disable"] = True
