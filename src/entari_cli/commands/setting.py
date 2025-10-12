@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 import os
 import subprocess
-from typing import Any
+from typing import Any, Literal, overload
 
 from arclet.alconna import Alconna, Args, Arparma, CommandMeta, Option
 from clilte import BasePlugin, PluginMetadata, register
@@ -50,13 +50,27 @@ class SelfSetting(BasePlugin):
             priority=1,
         )
 
-    def get_setting(self, local: bool):
+    @overload
+    def get_setting(self, local: bool) -> "tomlkit.TOMLDocument | None": ...
+    @overload
+    def get_setting(self, local: bool, force: Literal[True]) -> tomlkit.TOMLDocument: ...
+
+    def get_setting(self, local: bool, force=False):
         setting_dir = get_project_root() if local else user_config_path("entari-cli", appauthor=False)
         setting_file = setting_dir / (".entari_cli.toml" if local else "config.toml")
         if not setting_file.exists():
+            if force:
+                return tomlkit.document()
             return None
         with setting_file.open("r", encoding="utf-8") as f:
             return tomlkit.load(f)
+
+    def save_setting(self, local: bool, config: tomlkit.TOMLDocument):
+        setting_dir = get_project_root() if local else user_config_path("entari-cli", appauthor=False)
+        setting_file = setting_dir / (".entari_cli.toml" if local else "config.toml")
+        setting_dir.mkdir(parents=True, exist_ok=True)
+        with setting_file.open("w+", encoding="utf-8") as f:
+            tomlkit.dump(config, f)
 
     def get_config(self, key: str):
         value = None
@@ -97,15 +111,11 @@ class SelfSetting(BasePlugin):
             key = result.query[str]("setting.args.key")
             if not key:
                 return f"{Fore.RED}{i18n_.commands.setting.delete.missing()}{Fore.RESET}"
-            setting_dir = (
-                get_project_root() if result.find("setting.local") else user_config_path("entari-cli", appauthor=False)
-            )
-            setting_file = setting_dir / (".entari_cli.toml" if result.find("setting.local") else "config.toml")
-            with setting_file.open("r", encoding="utf-8") as f:
-                cfg = tomlkit.load(f)
+            cfg = self.get_setting(result.find("setting.local"))
+            if not cfg:
+                return f"{Fore.RED}{i18n_.commands.setting.delete.not_exist()}{Fore.RESET}"
             del_item(cfg, key)
-            with setting_file.open("w", encoding="utf-8") as f:
-                tomlkit.dump(cfg, f)
+            self.save_setting(result.find("setting.local"), cfg)
             return f"{Fore.GREEN}{i18n_.commands.setting.delete.success(key=key)}{Fore.RESET}"
         value = result.query[str]("setting.args.value", "")
         if value:

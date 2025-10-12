@@ -479,6 +479,11 @@
                       "description": "value of lang item type 'missing'",
                       "type": "string"
                     },
+                    "not_exist": {
+                      "title": "not_exist",
+                      "description": "value of lang item type 'not_exist'",
+                      "type": "string"
+                    },
                     "success": {
                       "title": "success",
                       "description": "value of lang item type 'success'",
@@ -596,6 +601,11 @@
             "select_python": {
               "title": "select_python",
               "description": "value of lang item type 'select_python'",
+              "type": "string"
+            },
+            "select_pm": {
+              "title": "select_pm",
+              "description": "value of lang item type 'select_pm'",
               "type": "string"
             },
             "please_select": {

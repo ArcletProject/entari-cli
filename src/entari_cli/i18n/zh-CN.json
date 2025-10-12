@@ -97,11 +97,12 @@
         "edit": {
           "failed_key": "给定 '--edit' 时无法指定参数",
           "failed_delete": "当给出 '--edit' 时，'--delete' 不起作用",
-          "success": "配置文件编辑成功。",
+          "success": "设定(配置)文件编辑成功。",
           "failed": "编辑器 {editor} 异常退出"
         },
         "delete": {
           "missing": "请指定要取消设置的配置键",
+          "not_exist": "设定(配置)文件还未创建",
           "success": "配置键 '{key}' 成功取消设置。"
         },
         "set": {
@@ -122,6 +123,7 @@
     },
     "project": {
       "select_python": "请输入要使用的 Python 解释器路径",
+      "select_pm": "请输入要使用的包管理器",
       "please_select": "请选择",
       "install_failed": "无法使用 {pm} 安装 {deps}，请检查输出。",
       "no_python_found": "未找到 Python 解释器。",

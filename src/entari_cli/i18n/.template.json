@@ -168,6 +168,7 @@
                   "subtype": "delete",
                   "types": [
                     "missing",
+                    "not_exist",
                     "success"
                   ]
                 },
@@ -212,6 +213,7 @@
           "subtype": "project",
           "types": [
             "select_python",
+            "select_pm",
             "please_select",
             "install_failed",
             "no_python_found",

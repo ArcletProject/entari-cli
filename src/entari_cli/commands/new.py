@@ -9,7 +9,7 @@ import tomlkit
 
 from entari_cli import i18n_
 from entari_cli.config import create_config
-from entari_cli.consts import NO, YES
+from entari_cli.consts import NO, YES, ENTARI_VERSION
 from entari_cli.project import (
     PYTHON_VERSION,
     ensure_python,
@@ -109,7 +109,7 @@ class NewPlugin(BasePlugin):
                             version=version,
                             description=description,
                             author=f'{{"name" = "{author}", "email" = "{email}"}}',
-                            entari_version="0.15.1",
+                            entari_version=ENTARI_VERSION,
                             python_requirement=f'">={PYTHON_VERSION[0]}.{PYTHON_VERSION[1]}"',
                             license=f'{{"text" = "{licence}"}}',
                         )
@@ -132,7 +132,7 @@ class NewPlugin(BasePlugin):
                     )
                     if ret_code != 0:
                         return
-                entari_version = get_package_version("arclet.entari", python_path) or "0.15.1"
+                entari_version = get_package_version("arclet.entari", python_path) or ENTARI_VERSION
                 info = PythonInfo.from_path(python_path)
                 default_python_requires = f">={info.major}.{info.minor}"
                 python_requires = ask(i18n_.commands.new.prompts.python_requires(), default_python_requires)

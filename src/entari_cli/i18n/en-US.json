@@ -102,6 +102,7 @@
         },
         "delete": {
           "missing": "Please specify the configuration key to unset",
+          "not_exist": "Configuration file has not created yet.",
           "success": "Configuration key '{key}' unset."
         },
         "set": {
@@ -122,6 +123,7 @@
     },
     "project": {
       "select_python": "Please enter the Python interpreter path to use",
+      "select_pm": "Please enter the package manager to use",
       "please_select": "Please select",
       "install_failed": "Failed to install {deps} with {pm}, please check the output above.",
       "no_python_found": "No Python interpreter found.",

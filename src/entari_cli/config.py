@@ -303,6 +303,7 @@ def create_config(cfg_path: Union[str, None], is_dev: bool = False, format_: Uni
             "ignore_self_message": True,
             "log": {"level": "info"},
             "prefix": ["/"],
+            "schema": True,
         }
         if is_dev:
             obj.plugin |= {  # type: ignore

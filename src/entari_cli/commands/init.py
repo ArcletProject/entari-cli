@@ -8,6 +8,7 @@ import tomlkit
 
 from entari_cli import i18n_
 from entari_cli.config import create_config
+from entari_cli.consts import ENTARI_VERSION
 from entari_cli.project import ensure_python, get_project_root, install_dependencies
 from entari_cli.py_info import PythonInfo, check_package_installed, get_package_version
 from entari_cli.setting import set_item
@@ -65,7 +66,7 @@ class InitEnv(BasePlugin):
                     f.write(
                         WORKSPACE_PROJECT_TEMPLATE.format(
                             extra=extras,
-                            entari_version="0.15.1",
+                            entari_version=ENTARI_VERSION,
                             python_requirement=f'">= {info.major}.{info.minor}"',
                         )
                     )
@@ -83,7 +84,7 @@ class InitEnv(BasePlugin):
             with toml_file.open("a+", encoding="utf-8") as f:
                 f.seek(0)
                 proj = tomlkit.load(f)
-                entari_version = get_package_version("arclet.entari", python_path) or "0.15.1"
+                entari_version = get_package_version("arclet.entari", python_path) or ENTARI_VERSION
                 set_item(proj, "project.dependencies", [f"arclet.entari[{extras}] >= {entari_version}"])
                 f.truncate(0)
                 tomlkit.dump(proj, f)

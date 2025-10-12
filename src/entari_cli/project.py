@@ -10,10 +10,19 @@ from colorama import Fore
 from entari_cli import i18n_
 from entari_cli.process import run_process
 from entari_cli.py_info import PythonInfo, iter_interpreters
+from entari_cli.setting import get_item, set_item, DEFAULT
 from entari_cli.utils import ask, is_conda_base_python
 from entari_cli.venv import create_virtualenv, get_venv_python
 
 PYTHON_VERSION = sys.version_info[:2]
+CHECK_PM_MAP = {
+    "uv": "add",
+    "pdm": "add",
+    "poetry": "add",
+    "rye": "add",
+    "pip": "install",
+    "pipenv": "install",
+}
 
 
 if TYPE_CHECKING:
@@ -94,6 +103,23 @@ def get_project_root() -> Path:
     return cwd
 
 
+def select_package_manager() -> tuple[str, str]:
+    """Select a package manager from the available ones."""
+    available_pms = []
+    for pm in CHECK_PM_MAP:
+        if executable := shutil.which(pm):
+            available_pms.append((pm, executable))
+    if not available_pms:
+        return "pip", "install"
+    print(i18n_.project.select_pm())
+    for i, (pm, exe) in enumerate(available_pms):
+        print(f"{i:>2}. {Fore.GREEN}{pm}{Fore.RESET} ({exe})")
+    selection = ask(i18n_.project.please_select(), default="0")
+    if not selection.isdigit() or int(selection) < 0 or int(selection) >= len(available_pms):
+        raise ValueError(i18n_.project.invalid_selection())
+    return available_pms[int(selection)][0], CHECK_PM_MAP[available_pms[int(selection)][0]]
+
+
 def install_dependencies(
     setting: "SelfSetting",
     deps: list[str],
@@ -105,10 +131,12 @@ def install_dependencies(
     def call_pip(*args):
         return run_process(python_path or sys.executable, "-m", "pip", *args)
 
-    pm: str = setting.get_config("install.package_manager")
-    install_args = install_args or ()
+    pm = setting.get_config("install.package_manager")
+    cmd = setting.get_config("install.command")
+    if pm is None:
+        pm, cmd = select_package_manager()
     de_install_args = setting.get_config("install.args")
-    de_install_cmd = setting.get_config("install.command")
+    install_args = install_args or ()
     if de_install_args:
         install_args = (*de_install_args.split(","), *install_args)
     if pm == "pip":
@@ -120,7 +148,7 @@ def install_dependencies(
             pm = "pip"
             ret_code = call_pip("install", *install_args, *deps)
         else:
-            ret_code = run_process(executable, de_install_cmd, *install_args, *deps)
+            ret_code = run_process(executable, cmd, *install_args, *deps)
     if ret_code != 0:
         print(f"{Fore.RED}{i18n_.project.install_failed(deps=', '.join(deps), pm=pm)}{Fore.RESET}")
     return ret_code
