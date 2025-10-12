@@ -10,11 +10,9 @@ class EntariCliCommandsInitOptions:
     install_args: LangItem = LangItem("entari_cli", "commands.init.options.install_args")
 
 
-
 class EntariCliCommandsInitMessages:
     success: LangItem = LangItem("entari_cli", "commands.init.messages.success")
     initialized: LangItem = LangItem("entari_cli", "commands.init.messages.initialized")
-
 
 
 class EntariCliCommandsInit:
@@ -23,12 +21,10 @@ class EntariCliCommandsInit:
     messages = EntariCliCommandsInitMessages
 
 
-
 class EntariCliCommandsAddOptions:
     disabled: LangItem = LangItem("entari_cli", "commands.add.options.disabled")
     optional: LangItem = LangItem("entari_cli", "commands.add.options.optional")
     priority: LangItem = LangItem("entari_cli", "commands.add.options.priority")
-
 
 
 class EntariCliCommandsAddPrompts:
@@ -37,12 +33,10 @@ class EntariCliCommandsAddPrompts:
     success: LangItem = LangItem("entari_cli", "commands.add.prompts.success")
 
 
-
 class EntariCliCommandsAdd:
     description: LangItem = LangItem("entari_cli", "commands.add.description")
     options = EntariCliCommandsAddOptions
     prompts = EntariCliCommandsAddPrompts
-
 
 
 class EntariCliCommandsNewOptions:
@@ -54,7 +48,6 @@ class EntariCliCommandsNewOptions:
     priority: LangItem = LangItem("entari_cli", "commands.new.options.priority")
     python: LangItem = LangItem("entari_cli", "commands.new.options.python")
     install_args: LangItem = LangItem("entari_cli", "commands.new.options.install_args")
-
 
 
 class EntariCliCommandsNewPrompts:
@@ -70,7 +63,6 @@ class EntariCliCommandsNewPrompts:
     is_disposable: LangItem = LangItem("entari_cli", "commands.new.prompts.is_disposable")
 
 
-
 class EntariCliCommandsNewMessages:
     invalid: LangItem = LangItem("entari_cli", "commands.new.messages.invalid")
     corrected: LangItem = LangItem("entari_cli", "commands.new.messages.corrected")
@@ -82,7 +74,6 @@ class EntariCliCommandsNewMessages:
     in_venv: LangItem = LangItem("entari_cli", "commands.new.messages.in_venv")
 
 
-
 class EntariCliCommandsNew:
     description: LangItem = LangItem("entari_cli", "commands.new.description")
     options = EntariCliCommandsNewOptions
@@ -90,11 +81,9 @@ class EntariCliCommandsNew:
     messages = EntariCliCommandsNewMessages
 
 
-
 class EntariCliCommandsRemovePrompts:
     name: LangItem = LangItem("entari_cli", "commands.remove.prompts.name")
     success: LangItem = LangItem("entari_cli", "commands.remove.prompts.success")
-
 
 
 class EntariCliCommandsRemove:
@@ -102,10 +91,8 @@ class EntariCliCommandsRemove:
     prompts = EntariCliCommandsRemovePrompts
 
 
-
 class EntariCliCommandsRunOptions:
     python: LangItem = LangItem("entari_cli", "commands.run.options.python")
-
 
 
 class EntariCliCommandsRun:
@@ -113,10 +100,8 @@ class EntariCliCommandsRun:
     options = EntariCliCommandsRunOptions
 
 
-
 class EntariCliCommandsGenerateMessages:
     generated: LangItem = LangItem("entari_cli", "commands.generate.messages.generated")
-
 
 
 class EntariCliCommandsGenerate:
@@ -124,17 +109,14 @@ class EntariCliCommandsGenerate:
     messages = EntariCliCommandsGenerateMessages
 
 
-
 class EntariCliCommandsVersion:
     description: LangItem = LangItem("entari_cli", "commands.version.description")
-
 
 
 class EntariCliCommandsSettingOptions:
     local: LangItem = LangItem("entari_cli", "commands.setting.options.local")
     delete: LangItem = LangItem("entari_cli", "commands.setting.options.delete")
     edit: LangItem = LangItem("entari_cli", "commands.setting.options.edit")
-
 
 
 class EntariCliCommandsSettingEdit:
@@ -144,12 +126,10 @@ class EntariCliCommandsSettingEdit:
     failed: LangItem = LangItem("entari_cli", "commands.setting.edit.failed")
 
 
-
 class EntariCliCommandsSettingDelete:
     missing: LangItem = LangItem("entari_cli", "commands.setting.delete.missing")
     not_exist: LangItem = LangItem("entari_cli", "commands.setting.delete.not_exist")
     success: LangItem = LangItem("entari_cli", "commands.setting.delete.success")
-
 
 
 class EntariCliCommandsSettingSet:
@@ -157,12 +137,10 @@ class EntariCliCommandsSettingSet:
     success: LangItem = LangItem("entari_cli", "commands.setting.set.success")
 
 
-
 class EntariCliCommandsSettingList:
     title: LangItem = LangItem("entari_cli", "commands.setting.list.title")
     global_: LangItem = LangItem("entari_cli", "commands.setting.list.global")
     local: LangItem = LangItem("entari_cli", "commands.setting.list.local")
-
 
 
 class EntariCliCommandsSetting:
@@ -177,7 +155,6 @@ class EntariCliCommandsSetting:
     list = EntariCliCommandsSettingList
 
 
-
 class EntariCliCommands:
     init = EntariCliCommandsInit
     add = EntariCliCommandsAdd
@@ -190,11 +167,9 @@ class EntariCliCommands:
     setting = EntariCliCommandsSetting
 
 
-
 class EntariCliErrors:
     python_not_found: LangItem = LangItem("entari_cli", "errors.python_not_found")
     invalid_project_name: LangItem = LangItem("entari_cli", "errors.invalid_project_name")
-
 
 
 class EntariCliConfig:
@@ -203,7 +178,6 @@ class EntariCliConfig:
     not_supported: LangItem = LangItem("entari_cli", "config.not_supported")
     exists: LangItem = LangItem("entari_cli", "config.exists")
     created: LangItem = LangItem("entari_cli", "config.created")
-
 
 
 class EntariCliProject:
@@ -216,12 +190,10 @@ class EntariCliProject:
     fallback_pip: LangItem = LangItem("entari_cli", "project.fallback_pip")
 
 
-
 class EntariCliVenv:
     use: LangItem = LangItem("entari_cli", "venv.use")
     create: LangItem = LangItem("entari_cli", "venv.create")
     ask_create: LangItem = LangItem("entari_cli", "venv.ask_create")
-
 
 
 class EntariCli:

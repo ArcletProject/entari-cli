@@ -10,7 +10,6 @@ from colorama import Fore
 from entari_cli import i18n_
 from entari_cli.process import run_process
 from entari_cli.py_info import PythonInfo, iter_interpreters
-from entari_cli.setting import get_item, set_item, DEFAULT
 from entari_cli.utils import ask, is_conda_base_python
 from entari_cli.venv import create_virtualenv, get_venv_python
 

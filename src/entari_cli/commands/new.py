@@ -9,7 +9,7 @@ import tomlkit
 
 from entari_cli import i18n_
 from entari_cli.config import create_config
-from entari_cli.consts import NO, YES, ENTARI_VERSION
+from entari_cli.consts import ENTARI_VERSION, NO, YES
 from entari_cli.project import (
     PYTHON_VERSION,
     ensure_python,
