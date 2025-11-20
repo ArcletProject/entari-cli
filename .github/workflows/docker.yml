@@ -80,13 +80,13 @@ jobs:
     steps:
     - name: Checkout (Latest Release)
       if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         ref: ${{ needs.metadata.outputs.LATEST_RELEASE}}
 
     - name: Checkout (Other)
       if: github.event_name != 'workflow_run'
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
@@ -167,13 +167,13 @@ jobs:
     steps:
       - name: Checkout (Release)
         if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ needs.metadata.outputs.LATEST_RELEASE }}
 
       - name: Checkout (Other)
         if: github.event_name != 'workflow_run'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download digests
         uses: actions/download-artifact@v6
