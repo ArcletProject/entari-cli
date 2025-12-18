@@ -241,12 +241,28 @@ def iter_interpreters(
         return
 
 
-def check_package_installed(package: str, python_path: str | None = None, cwd: Path | None = None) -> bool:
+def check_package_installed(
+    package: str, python_path: str | None = None, cwd: Path | None = None, local: bool = False
+) -> bool:
     executable = python_path or get_default_python(cwd)
+    if local:
+        script = f"""\
+import json
+import importlib.util
+print(json.dumps(importlib.util.find_spec('{package}') is not None))
+"""
+    else:
+        script = f"""\
+import json
+import importlib.metadata
+try:
+    importlib.metadata.distribution('{package}')
+    print(json.dumps(True))
+except importlib.metadata.PackageNotFoundError:
+    print(json.dumps(False))
+"""
     proc = subprocess.Popen(
-        f"{executable} -W ignore -c "
-        f"\"import json, importlib.util; print(json.dumps(importlib.util.find_spec('{package}') is not None))\"",
-        shell=True,
+        [executable, "-W", "ignore", "-c", script],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
@@ -259,12 +275,66 @@ def check_package_installed(package: str, python_path: str | None = None, cwd: P
     return False
 
 
+def get_package_module(package: str, python_path: str | None = None, cwd: Path | None = None) -> str | None:
+    executable = python_path or get_default_python(cwd)
+    script = f"""\
+import json
+import importlib.util
+import importlib.metadata
+
+dist = importlib.metadata.distribution('{package}')
+files = dist.files
+if not files:
+    print(json.dumps(None))
+    exit(0)
+importable = set()
+for file in files:
+    if file.suffix == '.py' or file.suffix == '.pyc':
+        parts = file.parts
+        if parts[-1] == '__init__.py' or parts[-1] == '__init__.pyc':
+            importable.add('.'.join(parts[:-1]))
+        else:
+            importable.add('.'.join(parts).rsplit('.', 1)[0])
+if not importable:
+    print(json.dumps(None))
+    exit(0)
+
+importable = list(importable)
+importable.sort(key=lambda x: len(x))
+
+spec = None
+for name in importable:
+    spec = importlib.util.find_spec(name)
+    if spec is not None:
+        break
+if spec is None or spec.origin is None:
+    print(json.dumps(None))
+    exit(0)
+print(json.dumps(spec.name))
+"""
+    proc = subprocess.Popen(
+        [executable, "-W", "ignore", "-c", script],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    stdout, _ = proc.communicate()
+    if proc.returncode == 0:
+        try:
+            return json.loads(stdout.splitlines()[-1].strip())
+        except Exception:
+            return None
+    return None
+
+
 def get_package_version(package: str, python_path: str | None = None, cwd: Path | None = None) -> str | None:
     executable = python_path or get_default_python(cwd)
+    script = f"""\
+import json
+import importlib.metadata
+print(json.dumps(importlib.metadata.version('{package}')))
+"""
     proc = subprocess.Popen(
-        f"{executable} -W ignore -c "
-        f"\"import json, importlib.metadata; print(json.dumps(importlib.metadata.version('{package}')))\"",
-        shell=True,
+        [executable, "-W", "ignore", "-c", script],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )

@@ -70,7 +70,7 @@ class InitEnv(BasePlugin):
                             python_requirement=f'">= {info.major}.{info.minor}"',
                         )
                     )
-            if check_package_installed("arclet.entari", python_path):
+            if check_package_installed("arclet-entari", python_path, local=True):
                 print(f"{Fore.YELLOW}{i18n_.commands.init.messages.initialized()}{Fore.RESET}")
             else:
                 ret_code = install_dependencies(
@@ -84,7 +84,7 @@ class InitEnv(BasePlugin):
             with toml_file.open("a+", encoding="utf-8") as f:
                 f.seek(0)
                 proj = tomlkit.load(f)
-                entari_version = get_package_version("arclet.entari", python_path) or ENTARI_VERSION
+                entari_version = get_package_version("arclet-entari", python_path) or ENTARI_VERSION
                 set_item(proj, "project.dependencies", [f"arclet.entari[{extras}] >= {entari_version}"])
                 f.truncate(0)
                 tomlkit.dump(proj, f)

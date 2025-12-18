@@ -84,6 +84,11 @@ class SelfSetting(BasePlugin):
             return DEFAULT[key]
         return value
 
+    def set_config(self, key: str, value: Any, local: bool):
+        cfg = self.get_setting(local, force=True)
+        set_item(cfg, key, value)  # type: ignore
+        self.save_setting(local, cfg)
+
     def dispatch(self, result: Arparma, next_: Next):
         if result.find("setting.edit"):
             if result.find("setting.args.key"):

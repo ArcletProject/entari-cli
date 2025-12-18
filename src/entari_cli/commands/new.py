@@ -123,7 +123,7 @@ class NewPlugin(BasePlugin):
                     if use_venv:
                         python_path = str(ensure_python(Path.cwd(), python).executable)
 
-                if not check_package_installed("arclet.entari", python_path):
+                if not check_package_installed("arclet.entari", python_path, local=True):
                     ret_code = install_dependencies(
                         CommandLine.current().get_plugin(SelfSetting),  # type: ignore
                         ["arclet.entari[yaml,cron,reload,dotenv]"],
@@ -132,7 +132,7 @@ class NewPlugin(BasePlugin):
                     )
                     if ret_code != 0:
                         return
-                entari_version = get_package_version("arclet.entari", python_path) or ENTARI_VERSION
+                entari_version = get_package_version("arclet-entari", python_path) or ENTARI_VERSION
                 info = PythonInfo.from_path(python_path)
                 default_python_requires = f">={info.major}.{info.minor}"
                 python_requires = ask(i18n_.commands.new.prompts.python_requires(), default_python_requires)
@@ -155,7 +155,7 @@ class NewPlugin(BasePlugin):
             if not is_static:
                 ans = ask(i18n_.commands.new.prompts.is_disposable(), "Y/n").strip().lower()
                 is_static = ans in NO
-            if proj_name.startswith("entari-plugin-") and check_package_installed(file_name):
+            if proj_name.startswith("entari-plugin-") and check_package_installed(proj_name):
                 return f"{Fore.RED}{i18n_.commands.new.messages.installed(name=proj_name)}{Fore.RESET}"
             path = Path.cwd() / ("plugins" if is_application else "src")
             path.mkdir(parents=True, exist_ok=True)

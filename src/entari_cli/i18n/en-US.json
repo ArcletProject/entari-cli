@@ -17,12 +17,14 @@
       "add": {
         "description": "Add an Entari plugin to the configuration file",
         "options": {
+          "key": "Specify the key name in the configuration file",
           "disabled": "Whether the plugin is initially disabled",
           "optional": "Whether to store only the plugin configuration without loading the plugin",
           "priority": "Plugin loading priority"
         },
         "prompts": {
           "name": "Please specify a plugin name: ",
+          "builtins_not_found": "Built-in plugin not found: {name}.",
           "failed": "{name} not found. You should installed it, or run {cmd}",
           "success": "Plugin {name} added to configuration file successfully."
         }

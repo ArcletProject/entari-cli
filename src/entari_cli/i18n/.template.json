@@ -35,6 +35,7 @@
                 {
                   "subtype": "options",
                   "types": [
+                    "key",
                     "disabled",
                     "optional",
                     "priority"
@@ -44,6 +45,7 @@
                   "subtype": "prompts",
                   "types": [
                     "name",
+                    "builtins_not_found",
                     "failed",
                     "success"
                   ]

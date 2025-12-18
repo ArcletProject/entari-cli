@@ -86,6 +86,11 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "key": {
+                      "title": "key",
+                      "description": "value of lang item type 'key'",
+                      "type": "string"
+                    },
                     "disabled": {
                       "title": "disabled",
                       "description": "value of lang item type 'disabled'",
@@ -112,6 +117,11 @@
                     "name": {
                       "title": "name",
                       "description": "value of lang item type 'name'",
+                      "type": "string"
+                    },
+                    "builtins_not_found": {
+                      "title": "builtins_not_found",
+                      "description": "value of lang item type 'builtins_not_found'",
                       "type": "string"
                     },
                     "failed": {

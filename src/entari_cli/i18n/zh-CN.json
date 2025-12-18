@@ -17,12 +17,14 @@
       "add": {
         "description": "添加一个 Entari 插件到配置文件中",
         "options": {
+          "key": "指定配置文件中的键名称",
           "disabled": "是否插件初始禁用",
           "optional": "是否仅存储插件配置而不加载插件",
           "priority": "插件加载优先级"
         },
         "prompts": {
           "name": "请指定插件名称：",
+          "builtins_not_found": "内置插件未找到：{name}。",
           "failed": "{name} 未找到。您应该安装它，或运行 {cmd}",
           "success": "插件 {name} 已成功添加到配置文件中。"
         }

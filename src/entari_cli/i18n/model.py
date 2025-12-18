@@ -22,6 +22,7 @@ class EntariCliCommandsInit:
 
 
 class EntariCliCommandsAddOptions:
+    key: LangItem = LangItem("entari_cli", "commands.add.options.key")
     disabled: LangItem = LangItem("entari_cli", "commands.add.options.disabled")
     optional: LangItem = LangItem("entari_cli", "commands.add.options.optional")
     priority: LangItem = LangItem("entari_cli", "commands.add.options.priority")
@@ -29,6 +30,7 @@ class EntariCliCommandsAddOptions:
 
 class EntariCliCommandsAddPrompts:
     name: LangItem = LangItem("entari_cli", "commands.add.prompts.name")
+    builtins_not_found: LangItem = LangItem("entari_cli", "commands.add.prompts.builtins_not_found")
     failed: LangItem = LangItem("entari_cli", "commands.add.prompts.failed")
     success: LangItem = LangItem("entari_cli", "commands.add.prompts.success")
 

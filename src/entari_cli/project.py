@@ -10,6 +10,7 @@ from colorama import Fore
 from entari_cli import i18n_
 from entari_cli.process import run_process
 from entari_cli.py_info import PythonInfo, iter_interpreters
+from entari_cli.setting import set_item
 from entari_cli.utils import ask, is_conda_base_python
 from entari_cli.venv import create_virtualenv, get_venv_python
 
@@ -132,8 +133,12 @@ def install_dependencies(
 
     pm = setting.get_config("install.package_manager")
     cmd = setting.get_config("install.command")
-    if pm is None:
+    if not pm:
         pm, cmd = select_package_manager()
+        cfg = setting.get_setting(True, force=True)
+        set_item(cfg, "install.package_manager", pm)  # type: ignore
+        set_item(cfg, "install.command", cmd)  # type: ignore
+        setting.save_setting(True, cfg)
     de_install_args = setting.get_config("install.args")
     install_args = install_args or ()
     if de_install_args:
