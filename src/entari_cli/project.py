@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Optional
 from colorama import Fore
 
 from entari_cli import i18n_
+from entari_cli.consts import REQUIRES_PYTHON
 from entari_cli.process import run_process
 from entari_cli.py_info import PythonInfo, iter_interpreters
 from entari_cli.setting import set_item
@@ -67,7 +68,7 @@ def sanitize_project_name(name: str) -> str:
 def select_python(cwd: Path, python: str) -> PythonInfo:
 
     def version_matcher(py_version: PythonInfo) -> bool:
-        return py_version.valid
+        return py_version.valid and py_version.minor >= REQUIRES_PYTHON[1]
 
     python = python.strip()
     found_interpreters = list(dict.fromkeys(iter_interpreters(cwd, python, filter_func=version_matcher)))
