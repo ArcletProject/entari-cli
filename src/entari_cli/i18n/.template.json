@@ -104,6 +104,13 @@
               "types": [
                 "description",
                 {
+                  "subtype": "options",
+                  "types": [
+                    "key",
+                    "keep"
+                  ]
+                },
+                {
                   "subtype": "prompts",
                   "types": [
                     "name",
@@ -218,6 +225,7 @@
             "select_pm",
             "please_select",
             "install_failed",
+            "uninstall_failed",
             "no_python_found",
             "invalid_selection",
             "fallback_pip"

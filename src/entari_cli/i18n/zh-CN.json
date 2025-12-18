@@ -15,7 +15,7 @@
         }
       },
       "add": {
-        "description": "添加一个 Entari 插件到配置文件中",
+        "description": "安装一个 Entari 插件并添加到配置文件中",
         "options": {
           "key": "指定配置文件中的键名称",
           "disabled": "是否插件初始禁用",
@@ -65,7 +65,11 @@
         }
       },
       "remove": {
-        "description": "从配置文件中移除一个 Entari 插件",
+        "description": "从配置文件中移除一个 Entari 插件并卸载",
+        "options": {
+          "key": "指定配置文件中的键名称",
+          "keep": "是否只移除而不卸载"
+        },
         "prompts": {
           "name": "请指定插件名称：",
           "success": "插件 {name} 已成功从配置文件中移除。"
@@ -128,6 +132,7 @@
       "select_pm": "请输入要使用的包管理器",
       "please_select": "请选择",
       "install_failed": "无法使用 {pm} 安装 {deps}，请检查输出。",
+      "uninstall_failed": "无法使用 {pm} 卸载 {deps}，请检查输出。",
       "no_python_found": "未找到 Python 解释器。",
       "invalid_selection": "选择无效。",
       "fallback_pip": "{pm} 未找到，将回退到使用 pip。"

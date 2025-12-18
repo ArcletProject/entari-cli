@@ -57,4 +57,5 @@ DEFAULT: dict[str, Any] = {
     "install.package_manager": "",
     "install.command": "",
     "install.args": "",
+    "uninstall.args": "",
 }

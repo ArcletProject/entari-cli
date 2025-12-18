@@ -83,6 +83,11 @@ class EntariCliCommandsNew:
     messages = EntariCliCommandsNewMessages
 
 
+class EntariCliCommandsRemoveOptions:
+    key: LangItem = LangItem("entari_cli", "commands.remove.options.key")
+    keep: LangItem = LangItem("entari_cli", "commands.remove.options.keep")
+
+
 class EntariCliCommandsRemovePrompts:
     name: LangItem = LangItem("entari_cli", "commands.remove.prompts.name")
     success: LangItem = LangItem("entari_cli", "commands.remove.prompts.success")
@@ -90,6 +95,7 @@ class EntariCliCommandsRemovePrompts:
 
 class EntariCliCommandsRemove:
     description: LangItem = LangItem("entari_cli", "commands.remove.description")
+    options = EntariCliCommandsRemoveOptions
     prompts = EntariCliCommandsRemovePrompts
 
 
@@ -187,6 +193,7 @@ class EntariCliProject:
     select_pm: LangItem = LangItem("entari_cli", "project.select_pm")
     please_select: LangItem = LangItem("entari_cli", "project.please_select")
     install_failed: LangItem = LangItem("entari_cli", "project.install_failed")
+    uninstall_failed: LangItem = LangItem("entari_cli", "project.uninstall_failed")
     no_python_found: LangItem = LangItem("entari_cli", "project.no_python_found")
     invalid_selection: LangItem = LangItem("entari_cli", "project.invalid_selection")
     fallback_pip: LangItem = LangItem("entari_cli", "project.fallback_pip")

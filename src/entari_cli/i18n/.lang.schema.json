@@ -316,6 +316,24 @@
                   "description": "value of lang item type 'description'",
                   "type": "string"
                 },
+                "options": {
+                  "title": "Options",
+                  "description": "Scope 'options' of lang item",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "key": {
+                      "title": "key",
+                      "description": "value of lang item type 'key'",
+                      "type": "string"
+                    },
+                    "keep": {
+                      "title": "keep",
+                      "description": "value of lang item type 'keep'",
+                      "type": "string"
+                    }
+                  }
+                },
                 "prompts": {
                   "title": "Prompts",
                   "description": "Scope 'prompts' of lang item",
@@ -626,6 +644,11 @@
             "install_failed": {
               "title": "install_failed",
               "description": "value of lang item type 'install_failed'",
+              "type": "string"
+            },
+            "uninstall_failed": {
+              "title": "uninstall_failed",
+              "description": "value of lang item type 'uninstall_failed'",
               "type": "string"
             },
             "no_python_found": {

@@ -15,7 +15,7 @@
         }
       },
       "add": {
-        "description": "Add an Entari plugin to the configuration file",
+        "description": "Install an Entari plugin and add it into the configuration file",
         "options": {
           "key": "Specify the key name in the configuration file",
           "disabled": "Whether the plugin is initially disabled",
@@ -65,7 +65,11 @@
         }
       },
       "remove": {
-        "description": "Remove an Entari plugin from the configuration file",
+        "description": "Remove an Entari plugin from the configuration file and uninstall it",
+        "options": {
+          "key": "Specify the key name in the configuration file",
+          "keep": "Whether to do not install the plugin"
+        },
         "prompts": {
           "name": "Please specify a plugin name:",
           "success": "Plugin {name} removed from configuration file successfully."
@@ -128,6 +132,7 @@
       "select_pm": "Please enter the package manager to use",
       "please_select": "Please select",
       "install_failed": "Failed to install {deps} with {pm}, please check the output above.",
+      "uninstall_failed": "Failed to uninstall {deps} with {pm}, please check the output above.",
       "no_python_found": "No Python interpreter found.",
       "invalid_selection": "Invalid selection.",
       "fallback_pip": "{pm} not found, falling back to pip."

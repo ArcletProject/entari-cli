@@ -24,6 +24,14 @@ CHECK_PM_MAP = {
     "pip": "install",
     "pipenv": "install",
 }
+PM_REMOVE_MAP = {
+    "uv": "remove",
+    "pdm": "remove",
+    "poetry": "remove",
+    "rye": "remove",
+    "pip": "uninstall",
+    "pipenv": "uninstall",
+}
 
 
 if TYPE_CHECKING:
@@ -127,7 +135,7 @@ def install_dependencies(
     python_path: Optional[str] = None,
     install_args: Optional[tuple[str, ...]] = None,
 ):
-    """Install dependencies using pip."""
+    """Install dependencies"""
 
     def call_pip(*args):
         return run_process(python_path or sys.executable, "-m", "pip", *args)
@@ -156,4 +164,40 @@ def install_dependencies(
             ret_code = run_process(executable, cmd, *install_args, *deps)
     if ret_code != 0:
         print(f"{Fore.RED}{i18n_.project.install_failed(deps=', '.join(deps), pm=pm)}{Fore.RESET}")
+    return ret_code
+
+
+def uninstall_dependencies(
+    setting: "SelfSetting",
+    deps: list[str],
+    python_path: Optional[str] = None,
+    uninstall_args: Optional[tuple[str, ...]] = None,
+):
+    def call_pip(*args):
+        return run_process(python_path or sys.executable, "-m", "pip", *args)
+
+    pm = setting.get_config("install.package_manager")
+    if not pm:
+        pm, cmd = select_package_manager()
+        cfg = setting.get_setting(True, force=True)
+        set_item(cfg, "install.package_manager", pm)  # type: ignore
+        set_item(cfg, "install.command", cmd)  # type: ignore
+        setting.save_setting(True, cfg)
+    de_uninstall_args = setting.get_config("uninstall.args")
+    uninstall_args = uninstall_args or ()
+    if de_uninstall_args:
+        uninstall_args = (*de_uninstall_args.split(","), *uninstall_args)
+    if pm == "pip":
+        ret_code = call_pip("uninstall", "-y", *uninstall_args, *deps)
+    else:
+        executable = shutil.which(pm)
+        if not executable:
+            print(f"{Fore.YELLOW}{i18n_.project.fallback_pip(pm=pm)}{Fore.RESET}")
+            pm = "pip"
+            ret_code = call_pip("uninstall", "-y", *uninstall_args, *deps)
+        else:
+            cmd = PM_REMOVE_MAP.get(pm, "uninstall")
+            ret_code = run_process(executable, cmd, *uninstall_args, *deps)
+    if ret_code != 0:
+        print(f"{Fore.RED}{i18n_.project.uninstall_failed(deps=', '.join(deps), pm=pm)}{Fore.RESET}")
     return ret_code
