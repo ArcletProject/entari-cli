@@ -26,8 +26,8 @@ jobs:
         run: |
           set -euo pipefail
           
-          if [[ -n "${GIT_TOKEN:-}" ]]; then
-            export GH_TOKEN="$GIT_TOKEN"
+          if [[ -n "${GHCR_TOKEN:-}" ]]; then
+            export GH_TOKEN="$GHCR_TOKEN"
             echo "Using GIT_TOKEN for authentication"
           else
             echo "Using GITHUB_TOKEN for authentication"
@@ -62,7 +62,7 @@ jobs:
             echo "Found ${#ids[@]} untagged versions for package: $pkg"
             for id in "${ids[@]}"; do
               echo "Deleting version ID: $id"
-              if gh api -X DELETE -H "Accept: application/vnd.github+json" "/$owner_path/$OWNER/packages/container/$pkg/versions/$id"; then
+              if gh api --method DELETE -H "Accept: application/vnd.github+json" "/$owner_path/$OWNER/packages/container/$pkg/versions/$id"; then
                 echo "Successfully deleted version ID: $id"
               else
                 echo "Failed to delete version ID: $id"

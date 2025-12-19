@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-    paths_ignore:
+    paths-ignore:
       - .github/actions/setup-python/action.yml
       - .github/workflows/release.yml
       - .github/workflows/auto-merge.yml
@@ -13,7 +13,7 @@ on:
   pull_request:
     branches:
       - main
-    paths_ignore:
+    paths-ignore:
       - .github/actions/setup-python/action.yml
       - .github/workflows/release.yml
       - .github/workflows/auto-merge.yml
