@@ -178,9 +178,11 @@ class EntariCliCommandsAdapterMessages:
     install_failed: LangItem = LangItem("entari_cli", "commands.adapter.messages.install_failed")
     add_success: LangItem = LangItem("entari_cli", "commands.adapter.messages.add_success")
     remove_success: LangItem = LangItem("entari_cli", "commands.adapter.messages.remove_success")
+    server_not_installed: LangItem = LangItem("entari_cli", "commands.adapter.messages.server_not_installed")
 
 
 class EntariCliCommandsAdapterPrompts:
+    confirm_install: LangItem = LangItem("entari_cli", "commands.adapter.prompts.confirm_install")
     select_adapter: LangItem = LangItem("entari_cli", "commands.adapter.prompts.select_adapter")
     please_select: LangItem = LangItem("entari_cli", "commands.adapter.prompts.please_select")
     invalid_selection: LangItem = LangItem("entari_cli", "commands.adapter.prompts.invalid_selection")

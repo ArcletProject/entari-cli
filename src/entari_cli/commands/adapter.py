@@ -5,6 +5,7 @@ from colorama import Fore
 
 from entari_cli import i18n_
 from entari_cli.config import EntariConfig
+from entari_cli.consts import YES
 from entari_cli.project import get_project_root, install_dependencies, uninstall_dependencies
 from entari_cli.py_info import check_package_installed, get_default_python
 from entari_cli.utils import ask
@@ -48,11 +49,21 @@ class AdapterPlugin(BasePlugin):
             offset = max(len(name) for name in ADAPTERS.keys()) + 1
             for name, (key, _, desc) in ADAPTERS.items():
                 status = key in adapters
-                output += f"  {Fore.BLUE}{name:<{offset}}{Fore.RESET}  {desc}" + ("(✅)" if status else "") + "\n"
+                output += f"  {Fore.BLUE}{name:<{offset}}{Fore.RESET}  {desc}" + (" (已安装)" if status else "") + "\n"
             return output
 
         if result.find("adapter.add"):
             cfg = EntariConfig.load(result.query[str]("cfg_path.path", None), get_project_root())
+            if "server" not in cfg.plugin and "entari_plugin_server" not in cfg.plugin:
+                print(f"{Fore.YELLOW}{i18n_.commands.adapter.messages.server_not_installed()}{Fore.RESET}\n")
+                ans = (
+                    ask(f"{Fore.BLUE}{i18n_.commands.adapter.prompts.confirm_install()}{Fore.RESET} " "Y/n")
+                    .strip()
+                    .lower()
+                )
+                continue_install = ans in YES
+                if not continue_install:
+                    return next_(None)
             adapters = {adapter["$path"].replace("satori.adapters.", "@") for adapter in cfg.data.get("adapters", [])}
             install = []
             for name, (key, pkg, desc) in ADAPTERS.items():

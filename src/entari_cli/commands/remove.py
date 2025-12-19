@@ -53,6 +53,8 @@ class RemovePlugin(BasePlugin):
                     key = result.query[str]("remove.key.key", name)
                     name = None
             cfg = EntariConfig.load(result.query[str]("cfg_path.path", None), get_project_root())
+            if key not in cfg.plugin:
+                return f"{Fore.RED}{i18n_.commands.remove.prompts.not_found(name=f'{Fore.BLUE}{name_}{Fore.RED}')}{Fore.RESET}\n"  # noqa: E501
             cfg.plugin.pop(key, None)
             cfg.save()
             if not result.find("remove.keep") and not name_.count(".") and name:

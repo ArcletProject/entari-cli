@@ -646,6 +646,11 @@
                       "title": "remove_success",
                       "description": "value of lang item type 'remove_success'",
                       "type": "string"
+                    },
+                    "server_not_installed": {
+                      "title": "server_not_installed",
+                      "description": "value of lang item type 'server_not_installed'",
+                      "type": "string"
                     }
                   }
                 },
@@ -655,6 +660,11 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "confirm_install": {
+                      "title": "confirm_install",
+                      "description": "value of lang item type 'confirm_install'",
+                      "type": "string"
+                    },
                     "select_adapter": {
                       "title": "select_adapter",
                       "description": "value of lang item type 'select_adapter'",

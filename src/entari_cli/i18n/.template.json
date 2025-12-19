@@ -221,12 +221,14 @@
                     "none_installed",
                     "install_failed",
                     "add_success",
-                    "remove_success"
+                    "remove_success",
+                    "server_not_installed"
                   ]
                 },
                 {
                   "subtype": "prompts",
                   "types": [
+                    "confirm_install",
                     "select_adapter",
                     "please_select",
                     "invalid_selection"

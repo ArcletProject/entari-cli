@@ -134,7 +134,8 @@
         "prompts": {
           "please_select": "请选择",
           "select_adapter": "请输入需要指定的适配器",
-          "invalid_selection": "选择无效。"
+          "invalid_selection": "选择无效。",
+          "confirm_install": "你仍然想进行适配器安装吗?"
         },
         "messages": {
           "all_installed": "所有适配器均已安装。",
@@ -142,7 +143,8 @@
           "list_header": "可用适配器",
           "none_installed": "未安装任何适配器。",
           "install_failed": "无法安装适配器 {name}，请检查输出。",
-          "add_success": "适配器 {name} 已成功添加到配置文件中。"
+          "add_success": "适配器 {name} 已成功添加到配置文件中。",
+          "server_not_installed": "适配器使用需要的插件 `entari-plugin-server` 还未安装。"
         }
       }
     },
