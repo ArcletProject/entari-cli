@@ -72,7 +72,9 @@
         },
         "prompts": {
           "name": "Please specify a plugin name:",
-          "success": "Plugin {name} removed from configuration file successfully."
+          "success": "Plugin {name} removed from configuration file successfully.",
+          "builtins_not_found": "Built-in plugin not found: {name}.",
+          "not_found": "Plugin {name} not found in the environment."
         }
       },
       "run": {
@@ -120,6 +122,27 @@
           "title": "Site/default setting",
           "global": "Global configuration file",
           "local": "Local configuration file"
+        }
+      },
+      "adapter": {
+        "description": "Manage Entari adapters",
+        "options": {
+          "add": "Install an adapter and add it into the configuration file",
+          "remove": "Remove an adapter from the configuration file and uninstall it",
+          "list": "List all available adapters"
+        },
+        "prompts": {
+          "please_select": "Please select",
+          "select_adapter": "Please enter the adapter to specify",
+          "invalid_selection": "Invalid selection."
+        },
+        "messages": {
+          "all_installed": "All adapters are already installed.",
+          "remove_success": "Adapter {name} has been successfully removed from the configuration file.",
+          "list_header": "Available adapters",
+          "none_installed": "No adapters installed.",
+          "install_failed": "Failed to install adapter {name}, please check the output.",
+          "add_success": "Adapter {name} added to configuration file successfully."
         }
       }
     },

@@ -114,7 +114,9 @@
                   "subtype": "prompts",
                   "types": [
                     "name",
-                    "success"
+                    "success",
+                    "builtins_not_found",
+                    "not_found"
                   ]
                 }
               ]
@@ -195,6 +197,39 @@
                     "title",
                     "global",
                     "local"
+                  ]
+                }
+              ]
+            },
+            {
+              "subtype": "adapter",
+              "types": [
+                "description",
+                {
+                  "subtype": "options",
+                  "types": [
+                    "list",
+                    "add",
+                    "remove"
+                  ]
+                },
+                {
+                  "subtype": "messages",
+                  "types": [
+                    "list_header",
+                    "all_installed",
+                    "none_installed",
+                    "install_failed",
+                    "add_success",
+                    "remove_success"
+                  ]
+                },
+                {
+                  "subtype": "prompts",
+                  "types": [
+                    "select_adapter",
+                    "please_select",
+                    "invalid_selection"
                   ]
                 }
               ]

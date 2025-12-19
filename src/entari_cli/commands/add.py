@@ -43,8 +43,6 @@ class AddPlugin(BasePlugin):
                 if not check_package_installed(name_, local=True):
                     return f"{Fore.RED}{i18n_.commands.add.prompts.builtins_not_found(name=f'{Fore.BLUE}{name_}')}{Fore.RESET}\n"  # noqa: E501
             else:
-                # if check_package_installed(name_) or check_package_installed(name_, local=True):
-                #     key = result.query[str]("add.key.key", name_)
                 if check_package_installed(name_, local=True):
                     key = result.query[str]("add.key.key", name_)
                 elif check_package_installed(name_):

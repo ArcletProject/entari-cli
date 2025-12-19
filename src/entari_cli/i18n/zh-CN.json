@@ -72,7 +72,9 @@
         },
         "prompts": {
           "name": "请指定插件名称：",
-          "success": "插件 {name} 已成功从配置文件中移除。"
+          "success": "插件 {name} 已成功从配置文件中移除。",
+          "builtins_not_found": "内置插件未找到：{name}。",
+          "not_found": "插件 {name} 未在安装环境中找到。"
         }
       },
       "run": {
@@ -120,6 +122,27 @@
           "title": "默认设置",
           "global": "全局设定(配置)文件",
           "local": "本地设定(配置)文件"
+        }
+      },
+      "adapter": {
+        "description": "管理 Entari 适配器",
+        "options": {
+          "add": "安装适配器并添加到配置文件中",
+          "remove": "从配置文件中移除适配器并卸载",
+          "list": "列出所有可用的适配器"
+        },
+        "prompts": {
+          "please_select": "请选择",
+          "select_adapter": "请输入需要指定的适配器",
+          "invalid_selection": "选择无效。"
+        },
+        "messages": {
+          "all_installed": "所有适配器均已安装。",
+          "remove_success": "适配器 {name} 已成功从配置文件中移除。",
+          "list_header": "可用适配器",
+          "none_installed": "未安装任何适配器。",
+          "install_failed": "无法安装适配器 {name}，请检查输出。",
+          "add_success": "适配器 {name} 已成功添加到配置文件中。"
         }
       }
     },

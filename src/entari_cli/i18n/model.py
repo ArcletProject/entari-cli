@@ -91,6 +91,8 @@ class EntariCliCommandsRemoveOptions:
 class EntariCliCommandsRemovePrompts:
     name: LangItem = LangItem("entari_cli", "commands.remove.prompts.name")
     success: LangItem = LangItem("entari_cli", "commands.remove.prompts.success")
+    builtins_not_found: LangItem = LangItem("entari_cli", "commands.remove.prompts.builtins_not_found")
+    not_found: LangItem = LangItem("entari_cli", "commands.remove.prompts.not_found")
 
 
 class EntariCliCommandsRemove:
@@ -163,6 +165,34 @@ class EntariCliCommandsSetting:
     list = EntariCliCommandsSettingList
 
 
+class EntariCliCommandsAdapterOptions:
+    list: LangItem = LangItem("entari_cli", "commands.adapter.options.list")
+    add: LangItem = LangItem("entari_cli", "commands.adapter.options.add")
+    remove: LangItem = LangItem("entari_cli", "commands.adapter.options.remove")
+
+
+class EntariCliCommandsAdapterMessages:
+    list_header: LangItem = LangItem("entari_cli", "commands.adapter.messages.list_header")
+    all_installed: LangItem = LangItem("entari_cli", "commands.adapter.messages.all_installed")
+    none_installed: LangItem = LangItem("entari_cli", "commands.adapter.messages.none_installed")
+    install_failed: LangItem = LangItem("entari_cli", "commands.adapter.messages.install_failed")
+    add_success: LangItem = LangItem("entari_cli", "commands.adapter.messages.add_success")
+    remove_success: LangItem = LangItem("entari_cli", "commands.adapter.messages.remove_success")
+
+
+class EntariCliCommandsAdapterPrompts:
+    select_adapter: LangItem = LangItem("entari_cli", "commands.adapter.prompts.select_adapter")
+    please_select: LangItem = LangItem("entari_cli", "commands.adapter.prompts.please_select")
+    invalid_selection: LangItem = LangItem("entari_cli", "commands.adapter.prompts.invalid_selection")
+
+
+class EntariCliCommandsAdapter:
+    description: LangItem = LangItem("entari_cli", "commands.adapter.description")
+    options = EntariCliCommandsAdapterOptions
+    messages = EntariCliCommandsAdapterMessages
+    prompts = EntariCliCommandsAdapterPrompts
+
+
 class EntariCliCommands:
     init = EntariCliCommandsInit
     add = EntariCliCommandsAdd
@@ -173,6 +203,7 @@ class EntariCliCommands:
     version = EntariCliCommandsVersion
     config_path: LangItem = LangItem("entari_cli", "commands.config_path")
     setting = EntariCliCommandsSetting
+    adapter = EntariCliCommandsAdapter
 
 
 class EntariCliErrors:

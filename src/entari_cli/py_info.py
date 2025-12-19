@@ -326,6 +326,40 @@ print(json.dumps(spec.name))
     return None
 
 
+def get_module_package(module: str, python_path: str | None = None, cwd: Path | None = None) -> str | None:
+    executable = python_path or get_default_python(cwd)
+    script = f"""\
+import json
+import importlib.util
+import importlib.metadata
+from pathlib import Path
+
+spec = importlib.util.find_spec('{module}')
+if spec is None or spec.origin is None:
+    print(json.dumps(None))
+    exit(0)
+for dist in importlib.metadata.distributions(name="cli_lite"):
+    relative_path = Path(spec.origin).relative_to(str(dist.locate_file(""))).as_posix()
+    if relative_path in map(str, dist.files or []):
+        break
+else:
+    print(json.dumps(None))
+    exit(0)
+print(json.dumps(dist.metadata['Name']))
+"""
+    proc = subprocess.Popen(
+        [executable, "-W", "ignore", "-c", script],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    stdout, _ = proc.communicate()
+    if proc.returncode == 0:
+        try:
+            return json.loads(stdout.splitlines()[-1].strip())
+        except Exception:
+            return None
+
+
 def get_package_version(package: str, python_path: str | None = None, cwd: Path | None = None) -> str | None:
     executable = python_path or get_default_python(cwd)
     script = f"""\

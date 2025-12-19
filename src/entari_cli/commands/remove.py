@@ -6,7 +6,7 @@ from colorama import Fore
 from entari_cli import i18n_
 from entari_cli.config import EntariConfig
 from entari_cli.project import get_project_root, uninstall_dependencies
-from entari_cli.py_info import get_default_python
+from entari_cli.py_info import check_package_installed, get_default_python, get_module_package, get_package_module
 
 
 @register("entari_cli.plugins")
@@ -34,15 +34,32 @@ class RemovePlugin(BasePlugin):
             name = result.query[str]("remove.name")
             if not name:
                 name = input(f"{Fore.BLUE}{i18n_.commands.remove.prompts.name()}{Fore.RESET}").strip()
-            key = result.query[str]("remove.key.key", name)
+            name_ = name.replace("::", "arclet.entari.builtins.")
+            if name_.startswith("arclet.entari.builtins."):
+                key = name
+                if not check_package_installed(name_, local=True):
+                    return f"{Fore.RED}{i18n_.commands.remove.prompts.builtins_not_found(name=f'{Fore.BLUE}{name_}')}{Fore.RESET}\n"  # noqa: E501
+            else:
+                if check_package_installed(name_, local=True):
+                    key = result.query[str]("remove.key.key", name_)
+                    name = get_module_package(name_)
+                elif check_package_installed(name_):
+                    name = name_
+                    key = result.query[str]("remove.key.key", get_package_module(name_) or name_.replace("-", "_"))
+                elif not name_.count(".") and check_package_installed(f"entari_plugin_{name_}", local=True):
+                    name = f"entari-plugin-{name_}"
+                    key = result.query[str]("remove.key.key", name_)
+                else:
+                    key = result.query[str]("remove.key.key", name)
+                    name = None
             cfg = EntariConfig.load(result.query[str]("cfg_path.path", None), get_project_root())
             cfg.plugin.pop(key, None)
             cfg.save()
-            if not result.find("remove.keep"):
+            if not result.find("remove.keep") and not name_.count(".") and name:
                 uninstall_dependencies(
                     CommandLine.current().get_plugin(SelfSetting),  # type: ignore
                     [name],
                     get_default_python(get_project_root()),
                 )
-            return f"{Fore.GREEN}{i18n_.commands.remove.prompts.success(name=name)}{Fore.RESET}\n"
+            return f"{Fore.GREEN}{i18n_.commands.remove.prompts.success(name=name_)}{Fore.RESET}\n"
         return next_(None)
