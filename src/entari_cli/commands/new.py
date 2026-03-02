@@ -1,11 +1,11 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
+import tomlkit
 from arclet.alconna import Alconna, Args, Arparma, CommandMeta, MultiVar, Option
 from clilte import BasePlugin, PluginMetadata, register
 from clilte.core import CommandLine, Next
 from colorama import Fore
-import tomlkit
 
 from entari_cli import i18n_
 from entari_cli.config import create_config
@@ -156,7 +156,11 @@ class NewPlugin(BasePlugin):
             if not is_static:
                 ans = ask(i18n_.commands.new.prompts.is_disposable(), "Y/n").strip().lower()
                 is_static = ans in NO
-            if (is_application or not use_venv) and proj_name.startswith("entari-plugin-") and check_package_installed(proj_name):
+            if (
+                (is_application or not use_venv)
+                and proj_name.startswith("entari-plugin-")
+                and check_package_installed(proj_name)
+            ):
                 return f"{Fore.RED}{i18n_.commands.new.messages.installed(name=proj_name)}{Fore.RESET}"
             path = Path.cwd() / ("plugins" if is_application else "src")
             path.mkdir(parents=True, exist_ok=True)

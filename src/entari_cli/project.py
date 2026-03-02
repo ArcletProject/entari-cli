@@ -1,8 +1,8 @@
-from pathlib import Path
 import re
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
 from colorama import Fore

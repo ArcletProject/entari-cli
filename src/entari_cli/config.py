@@ -11,10 +11,10 @@ from pathlib import Path
 from typing import Any, Callable, ClassVar, TypeVar, Union
 
 from colorama import Fore
+from dotenv import dotenv_values
 from ruamel.yaml import YAML
 from tarina import safe_eval
 from tomlkit import dumps, loads
-from dotenv import dotenv_values
 
 from entari_cli import i18n_
 from entari_cli.utils import ask

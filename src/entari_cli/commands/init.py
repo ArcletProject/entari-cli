@@ -1,10 +1,10 @@
 import sys
 
+import tomlkit
 from arclet.alconna import Alconna, Args, Arparma, CommandMeta, MultiVar, Option
 from clilte import BasePlugin, CommandLine, PluginMetadata, register
 from clilte.core import Next
 from colorama import Fore
-import tomlkit
 
 from entari_cli import i18n_
 from entari_cli.config import create_config

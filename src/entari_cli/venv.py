@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
 import dataclasses as dc
-from functools import cached_property
-from pathlib import Path
 import shutil
 import subprocess
 import sys
+from collections.abc import Iterable
+from functools import cached_property
+from pathlib import Path
 
 from colorama import Fore
 from findpython import BaseProvider, PythonVersion

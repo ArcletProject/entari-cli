@@ -1,8 +1,8 @@
 import os
-from pathlib import Path
 import signal
 import subprocess
 import sys
+from pathlib import Path
 from typing import Union
 
 
