@@ -11,15 +11,15 @@ from entari_cli.py_info import check_package_installed, get_default_python
 from entari_cli.utils import ask
 
 ADAPTERS = {
-    "OneBot11 Forward": ["@onebot11.forward", "satori-python-adapter-onebot11", "OneBot11 正向 WS 协议适配器"],
-    "OneBot11 Reverse": ["@onebot11.reverse", "satori-python-adapter-onebot11", "OneBot11 反向 WS 协议适配器"],
+    "OneBot11-Forward": ["@onebot11.forward", "satori-python-adapter-onebot11", "OneBot11 正向 WS 协议适配器"],
+    "OneBot11-Reverse": ["@onebot11.reverse", "satori-python-adapter-onebot11", "OneBot11 反向 WS 协议适配器"],
     "Console": ["@console", "satori-python-adapter-console", "控制台适配器"],
     "Satori": ["@satori", "satori-python-adapter-satori", "Satori 协议适配器"],
     "Milky": ["@milky.main", "satori-python-adapter-milky", "Milky 协议适配器"],
-    "Milky Webhook": ["@milky.webhook", "satori-python-adapter-milky", "Milky Webhook 协议适配器"],
-    "Milky SSE": ["@milky.sse", "satori-python-adapter-milky", "Milky SSE 协议适配器"],
+    "Milky-Webhook": ["@milky.webhook", "satori-python-adapter-milky", "Milky Webhook 协议适配器"],
+    "Milky-SSE": ["@milky.sse", "satori-python-adapter-milky", "Milky SSE 协议适配器"],
     "QQ": ["@qq.main", "satori-python-adapter-qq", "QQ 适配器"],
-    "QQ Websocket": ["@qq.websocket", "satori-python-adapter-qq", "QQ WebSocket 适配器"],
+    "QQ-Websocket": ["@qq.websocket", "satori-python-adapter-qq", "QQ WebSocket 适配器"],
     "Nekobot": ["nekobot.main", "nekobot", "Lagrange 适配器"],
 }
 
