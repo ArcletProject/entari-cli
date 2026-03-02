@@ -17,6 +17,9 @@ ADAPTERS = {
     "Satori": ["@satori", "satori-python-adapter-satori", "Satori 协议适配器"],
     "Milky": ["@milky.main", "satori-python-adapter-milky", "Milky 协议适配器"],
     "Milky Webhook": ["@milky.webhook", "satori-python-adapter-milky", "Milky Webhook 协议适配器"],
+    "Milky SSE": ["@milky.sse", "satori-python-adapter-milky", "Milky SSE 协议适配器"],
+    "QQ": ["@qq.main", "satori-python-adapter-qq", "QQ 适配器"],
+    "QQ Websocket": ["@qq.websocket", "satori-python-adapter-qq", "QQ WebSocket 适配器"],
     "Nekobot": ["nekobot.main", "nekobot", "Lagrange 适配器"],
 }
 
@@ -122,4 +125,4 @@ class AdapterPlugin(BasePlugin):
                     get_default_python(get_project_root()),
                 )
             return f"{Fore.GREEN}{i18n_.commands.adapter.messages.remove_success(name=name)}{Fore.RESET}\n"
-        return next_(None)
+        return next_(CommandLine.current()._command.formatter.format_node(["entari", "adapter"]))
