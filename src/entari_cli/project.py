@@ -150,8 +150,6 @@ def install_dependencies(
         setting.save_setting(True, cfg)
     de_install_args = setting.get_config("install.args")
     install_args = install_args or ()
-    if pm == "pdm":
-        install_args = ("--no-self", *install_args)
     if de_install_args:
         install_args = (*de_install_args.split(","), *install_args)
     if pm == "pip":

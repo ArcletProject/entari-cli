@@ -1,19 +1,20 @@
+import json
+import os
+import re
+import warnings
 from collections.abc import Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from importlib import import_module
 from io import StringIO
-import json
-import os
 from pathlib import Path
-import re
 from typing import Any, Callable, ClassVar, TypeVar, Union
-import warnings
 
 from colorama import Fore
 from ruamel.yaml import YAML
 from tarina import safe_eval
 from tomlkit import dumps, loads
+from dotenv import dotenv_values
 
 from entari_cli import i18n_
 from entari_cli.utils import ask
@@ -23,7 +24,7 @@ T = TypeVar("T")
 
 
 _loaders: dict[str, Callable[[str], dict]] = {}
-_dumpers: dict[str, Callable[[dict, int], str]] = {}
+_dumpers: dict[str, Callable[[dict, int, Union[str, None]], tuple[str, bool]]] = {}
 
 
 class GetattrDict:
@@ -40,9 +41,68 @@ class GetattrDict:
             raise AttributeError(f"{item} not found") from e
 
 
+def load_env_with_environment(
+    *,
+    base_files: tuple[str, ...] = (".env", ".env.local"),
+    environment_key: str = "environment",
+    encoding: str = "utf-8",
+    use_lowercase_keys: bool = False,
+) -> dict[str, str]:
+    """
+    1) 读取 .env / .env.local，拿到 environment
+    2) 若 environment 有值，则再读取 .env.{environment}
+    3) 最终用系统环境变量覆盖 dotenv 文件
+
+    返回：合并后的 key -> value（value 可能为 None）
+    """
+
+    def norm(k: str) -> str:
+        return k.lower() if use_lowercase_keys else k.upper()
+
+    def read_one(path: str) -> dict[str, str]:
+        p = Path(path).expanduser()
+        if not p.is_file():
+            return {}
+        raw = dotenv_values(p, encoding=encoding)
+        return {norm(k): v for k, v in raw.items() if v is not None}
+
+    def read_many(paths: tuple[str, ...]) -> dict[str, str]:
+        out: dict[str, str] = {}
+        for fp in paths:
+            out.update(read_one(fp))
+        return out
+
+    # 1) 先读基础文件（后读覆盖先读）
+    dotenv_vars = read_many(base_files)
+
+    # 用“当前已读到的 dotenv + 系统环境变量”来解析 environment（系统环境变量优先）
+    sys_env: Mapping[str, str] = {norm(k): v for k, v in os.environ.items()}
+    merged_for_env = {**dotenv_vars, **sys_env}
+    environment = merged_for_env.get(norm(environment_key))
+
+    # 2) 再读 .env.{environment}
+    if environment:
+        env_suffix = environment.strip()
+        if env_suffix:
+            dotenv_vars.update(read_one(f".env.{env_suffix}"))
+
+    # 3) 最终合并：系统环境变量覆盖 dotenv
+    final = {**dotenv_vars, **sys_env}
+    return final
+
+
 def check_env(file: Path):
     env = Path.cwd() / ".env"
-    if env.exists():
+    env_local = Path.cwd() / ".env.local"
+    if env_local.exists():
+        lines = env_local.read_text(encoding="utf-8").splitlines()
+        for i, line in enumerate(lines):
+            if line.startswith("ENTARI_CONFIG_FILE"):
+                lines[i] = f"ENTARI_CONFIG_FILE='{file.resolve().as_posix()}'"
+                with env_local.open("w", encoding="utf-8") as f:
+                    f.write("\n".join(lines))
+                break
+    elif env.exists():
         lines = env.read_text(encoding="utf-8").splitlines()
         for i, line in enumerate(lines):
             if line.startswith("ENTARI_CONFIG_FILE"):
@@ -51,7 +111,7 @@ def check_env(file: Path):
                     f.write("\n".join(lines))
                 break
     else:
-        with env.open("w+", encoding="utf-8") as f:
+        with env_local.open("w+", encoding="utf-8") as f:
             f.write(f"\nENTARI_CONFIG_FILE='{file.resolve().as_posix()}'")
 
 
@@ -63,8 +123,9 @@ class EntariConfig:
     prelude_plugin: list[str] = field(init=False)
     plugin_extra_files: list[str] = field(init=False)
     save_flag: bool = field(default=False)
+    env_vars: dict[str, str] = field(default_factory=dict)
     _origin_data: dict[str, Any] = field(init=False)
-    _env_replaced: dict[int, str] = field(default_factory=dict, init=False)
+    _env_replaced: dict[str, dict[int, tuple[str, int]]] = field(default_factory=dict, init=False)
 
     instance: ClassVar["EntariConfig"]
 
@@ -80,9 +141,10 @@ class EntariConfig:
             for i, line in enumerate(lines):
 
                 def handle(m: re.Match[str]):
-                    self._env_replaced[i] = line
                     expr = m.group("expr")
-                    return safe_eval(expr, ctx)
+                    ans = safe_eval(expr, ctx)
+                    self._env_replaced.setdefault(path.as_posix(), {})[i] = (line, len(ans.splitlines()))
+                    return ans
 
                 lines[i] = EXPR_CONTEXT_PAT.sub(handle, line)
             text = "".join(lines)
@@ -90,19 +152,24 @@ class EntariConfig:
 
         raise ValueError(f"Unsupported file format: {path.suffix}")
 
-    def dumper(self, path: Path, save_path: Path, data: dict, indent: int):
+    def dumper(self, path: Path, save_path: Path, data: dict, indent: int, apply_schema: bool):
         origin = self.loader(path) if path.exists() else data
         if "entari" in origin:
             origin["entari"] = data
         else:
             origin = data
         end = save_path.suffix.split(".")[-1]
+        schema_file = None
+        if apply_schema:
+            schema_file = f"{save_path.stem}.schema.json"
         if end in _dumpers:
-            ans = _dumpers[end](origin, indent)
+            ans, applied = _dumpers[end](origin, indent, schema_file)
             if self._env_replaced:
                 lines = ans.splitlines(keepends=True)
-                for i, line in self._env_replaced.items():
-                    lines[i] = line
+                for i, (line, height) in self._env_replaced[path.as_posix()].items():
+                    lines[i + applied] = line
+                    for _ in range(height - 2):
+                        lines.pop(i + applied + 1)
                 ans = "".join(lines)
             with save_path.open("w", encoding="utf-8") as f:
                 f.write(ans)
@@ -149,7 +216,8 @@ class EntariConfig:
             value = self.plugin.pop(key)
             if key.startswith("~"):
                 key = key[1:]
-                value["$disable"] = True
+                if "$disable" not in value or isinstance(value["$disable"], bool):
+                    value["$disable"] = True
             elif key.startswith("?"):
                 key = key[1:]
                 value["$optional"] = True
@@ -160,14 +228,14 @@ class EntariConfig:
                 raise FileNotFoundError(file)
             if path.is_dir():
                 for _path in path.iterdir():
-                    if not _path.is_file():
+                    if not _path.is_file() or _path.name.endswith(".schema.json"):
                         continue
                     self.plugin[_path.stem] = self.loader(_path)
-            else:
+            elif path.name.endswith(".schema.json"):
                 self.plugin[path.stem] = self.loader(path)
         return True
 
-    def dump(self, indent: int = 2):
+    def dump(self, indent: int = 2, apply_schema: bool = False):
         basic = self._origin_data.setdefault("basic", {})
         if "log" not in basic and ("log_level" in basic or "log_ignores" in basic):
             basic["log"] = {}
@@ -182,17 +250,17 @@ class EntariConfig:
         if self.plugin_extra_files:
             for file in self.plugin_extra_files:
                 path = Path(file)
-                if path.is_file():
-                    self.dumper(path, path, _clean(self.plugin.pop(path.stem)), indent)
+                if path.is_file() and not path.name.endswith(".schema.json"):
+                    self.dumper(path, path, _clean(self.plugin.pop(path.stem)), indent, apply_schema)
                 else:
                     for _path in path.iterdir():
-                        if _path.is_file():
-                            self.dumper(_path, _path, _clean(self.plugin.pop(_path.stem)), indent)
+                        if _path.is_file() and not _path.name.endswith(".schema.json"):
+                            self.dumper(_path, _path, _clean(self.plugin.pop(_path.stem)), indent, apply_schema)
         for key in list(self.plugin.keys()):
             if key.startswith("$"):
                 continue
             value = self.plugin.pop(key)
-            if "$disable" in value:
+            if "$disable" in value and isinstance(value["$disable"], bool):
                 key = f"~{key}" if value["$disable"] else key
                 value.pop("$disable", None)
             if "$optional" in value:
@@ -201,23 +269,17 @@ class EntariConfig:
             self.plugin[key] = _clean(value)
         return self._origin_data
 
-    def save(self, path: Union[str, os.PathLike[str], None] = None, indent: int = 2):
+    def save(self, path: Union[str, os.PathLike[str], None] = None, indent: int = 2, apply_schema: bool = False):
         self.save_flag = True
-        self.dumper(self.path, Path(path or self.path), self.dump(indent), indent)
+        self.dumper(self.path, Path(path or self.path), self.dump(indent, apply_schema), indent, apply_schema)
 
     @classmethod
     def load(cls, path: Union[str, os.PathLike[str], None] = None, cwd: Union[Path, None] = None) -> "EntariConfig":
-        try:
-            import dotenv
-
-            dotenv.load_dotenv()
-        except ImportError:
-            dotenv = None  # noqa
-            pass
+        env_vars = load_env_with_environment()
         cwd = cwd or Path.cwd()
         if not path:
-            if "ENTARI_CONFIG_FILE" in os.environ:
-                _path = Path(os.environ["ENTARI_CONFIG_FILE"])
+            if "ENTARI_CONFIG_FILE" in env_vars:
+                _path = Path(env_vars["ENTARI_CONFIG_FILE"])
             elif (cwd / ".entari.json").exists():
                 _path = cwd / ".entari.json"
             elif (cwd / "entari.toml").exists():
@@ -230,8 +292,8 @@ class EntariConfig:
                 _path = cwd / "entari.yml"
         else:
             _path = Path(path)
-        if "ENTARI_CONFIG_EXTENSION" in os.environ:
-            ext_mods = os.environ["ENTARI_CONFIG_EXTENSION"].split(";")
+        if "ENTARI_CONFIG_EXTENSION" in env_vars:
+            ext_mods = env_vars["ENTARI_CONFIG_EXTENSION"].split(";")
             for ext_mod in ext_mods:
                 if not ext_mod:
                     continue
@@ -241,10 +303,10 @@ class EntariConfig:
                 except ImportError as e:
                     warnings.warn(i18n_.config.ext_failed(ext_mod=ext_mod, error=repr(e)), ImportWarning)
         if not _path.exists():
-            return cls(_path)
+            return cls(_path, env_vars=env_vars)
         if not _path.is_file():
             raise ValueError(f"{_path} is not a file")
-        return cls(_path)
+        return cls(_path, env_vars=env_vars)
 
 
 def register_loader(*ext: str):
@@ -261,7 +323,7 @@ def register_loader(*ext: str):
 def register_dumper(*ext: str):
     """Register a dumper for a specific file extension."""
 
-    def decorator(func: Callable[[dict, int], str]):
+    def decorator(func: Callable[[dict, int, Union[str, None]], tuple[str, bool]]):
         for e in ext:
             _dumpers[e] = func
         return func
@@ -275,8 +337,12 @@ def json_loader(text: str) -> dict:
 
 
 @register_dumper("json")
-def json_dumper(origin: dict, indent: int):
-    return json.dumps(origin, indent=indent, ensure_ascii=False)
+def json_dumper(origin: dict, indent: int, schema_file: Union[str, None] = None):
+    schema_applied = False
+    if schema_file and "$schema" not in origin:
+        origin = {"$schema": f"{schema_file}", **origin}
+        schema_applied = True
+    return json.dumps(origin, indent=indent, ensure_ascii=False), schema_applied
 
 
 @register_loader("yaml", "yml")
@@ -288,13 +354,25 @@ def yaml_loader(text: str) -> dict:
 
 
 @register_dumper("yaml", "yml")
-def yaml_dumper(origin: dict, indent: int):
+def yaml_dumper(origin: dict, indent: int, schema_file: Union[str, None] = None):
     yaml = YAML()
     yaml.preserve_quotes = True
     yaml.indent(mapping=indent, sequence=indent + 2, offset=indent)
+    yaml.width = 4096
     sio = StringIO()
     yaml.dump(origin, sio)
-    return sio.getvalue()
+    ans = sio.getvalue()
+    schema_applied = False
+    if schema_file:
+        root = Path.cwd()
+        if (root / ".vscode").exists():
+            if not ans.startswith("# yaml-language-server: $schema="):
+                ans = f"# yaml-language-server: $schema={schema_file}\n{ans}"
+                schema_applied = True
+        elif not ans.startswith("# $schema:"):
+            ans = f"# $schema: {schema_file}\n{ans}"
+            schema_applied = True
+    return ans, schema_applied
 
 
 @register_loader("toml")
@@ -308,13 +386,18 @@ def toml_loader(text: str) -> dict[str, Any]:
 
 
 @register_dumper("toml")
-def toml_dumper(origin: dict[str, Any], indent: int = 4):
+def toml_dumper(origin: dict[str, Any], indent: int = 4, schema_file: Union[str, None] = None) -> tuple[str, bool]:
     """
     Dump a dictionary to a TOML file.
     """
     if dumps is None:
         raise RuntimeError("tomlkit is not installed. Please install with `arclet-entari[toml]`")
-    return dumps(origin)
+    ans = dumps(origin)
+    schema_applied = False
+    if schema_file and not ans.startswith("# schema: "):
+        ans = f"# schema: {schema_file}\n{ans}"
+        schema_applied = True
+    return ans, schema_applied
 
 
 @contextmanager

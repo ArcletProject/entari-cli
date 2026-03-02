@@ -68,6 +68,7 @@ class NewPlugin(BasePlugin):
             python = result.query[str]("new.python.path", "")
             cwd = get_project_root()
             toml_path = Path.cwd() / "pyproject.toml"
+            use_venv = False
 
             if not is_application:
                 ans = ask(i18n_.commands.new.prompts.is_plugin_project(), "Y/n").strip().lower()
@@ -155,7 +156,7 @@ class NewPlugin(BasePlugin):
             if not is_static:
                 ans = ask(i18n_.commands.new.prompts.is_disposable(), "Y/n").strip().lower()
                 is_static = ans in NO
-            if proj_name.startswith("entari-plugin-") and check_package_installed(proj_name):
+            if (is_application or not use_venv) and proj_name.startswith("entari-plugin-") and check_package_installed(proj_name):
                 return f"{Fore.RED}{i18n_.commands.new.messages.installed(name=proj_name)}{Fore.RESET}"
             path = Path.cwd() / ("plugins" if is_application else "src")
             path.mkdir(parents=True, exist_ok=True)

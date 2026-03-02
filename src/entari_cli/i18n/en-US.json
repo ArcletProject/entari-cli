@@ -42,7 +42,7 @@
           "install_args": "Extra parameters for installation command passed to the package manager"
         },
         "prompts": {
-          "is_plugin_project": "Is this an plugin project?",
+          "is_plugin_project": "Is this an Entari-Plugin Project?",
           "plugin_name": "Plugin name",
           "plugin_version": "Plugin version",
           "plugin_description": "Plugin description",

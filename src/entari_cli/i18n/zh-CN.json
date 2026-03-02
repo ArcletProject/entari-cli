@@ -42,7 +42,7 @@
           "install_args": "传递给包管理器的安装指令的额外参数"
         },
         "prompts": {
-          "is_plugin_project": "这是一个插件项目吗？",
+          "is_plugin_project": "这是一个 Entari 插件项目(即独立插件)吗？",
           "plugin_name": "插件名称",
           "plugin_version": "插件版本",
           "plugin_description": "插件描述",
