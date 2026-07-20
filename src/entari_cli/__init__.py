@@ -9,7 +9,7 @@ from .i18n import Lang
 
 i18n_ = Lang.entari_cli
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 cli = CommandLine(
     title="Entari CLI",
