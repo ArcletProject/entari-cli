@@ -18,7 +18,8 @@ from entari_cli.venv import create_virtualenv, get_venv_python
 PYTHON_VERSION = sys.version_info[:2]
 CHECK_PM_MAP = {
     "uv": "add",
-    "pdm": "add",
+    "pdm": "add --no-self",
+    "uv pip": "install",
     "poetry": "add",
     "rye": "add",
     "pip": "install",
@@ -27,6 +28,7 @@ CHECK_PM_MAP = {
 PM_REMOVE_MAP = {
     "uv": "remove",
     "pdm": "remove",
+    "uv pip": "uninstall",
     "poetry": "remove",
     "rye": "remove",
     "pip": "uninstall",
@@ -116,7 +118,7 @@ def select_package_manager() -> tuple[str, str]:
     """Select a package manager from the available ones."""
     available_pms = []
     for pm in CHECK_PM_MAP:
-        if executable := shutil.which(pm):
+        if executable := shutil.which(pm.split(" ")[0]):
             available_pms.append((pm, executable))
     if not available_pms:
         return "pip", "install"
@@ -155,13 +157,13 @@ def install_dependencies(
     if pm == "pip":
         ret_code = call_pip("install", *install_args, *deps)
     else:
-        executable = shutil.which(pm)
+        executable = shutil.which(pm.split(" ")[0])
         if not executable:
             print(f"{Fore.YELLOW}{i18n_.project.fallback_pip(pm=pm)}{Fore.RESET}")
             pm = "pip"
             ret_code = call_pip("install", *install_args, *deps)
         else:
-            ret_code = run_process(executable, cmd, *install_args, *deps)
+            ret_code = run_process(executable, *pm.split(" ")[1:], cmd, *install_args, *deps)
     if ret_code != 0:
         print(f"{Fore.RED}{i18n_.project.install_failed(deps=', '.join(deps), pm=pm)}{Fore.RESET}")
     return ret_code
@@ -190,14 +192,14 @@ def uninstall_dependencies(
     if pm == "pip":
         ret_code = call_pip("uninstall", "-y", *uninstall_args, *deps)
     else:
-        executable = shutil.which(pm)
+        executable = shutil.which(pm.split(" ")[0])
         if not executable:
             print(f"{Fore.YELLOW}{i18n_.project.fallback_pip(pm=pm)}{Fore.RESET}")
             pm = "pip"
             ret_code = call_pip("uninstall", "-y", *uninstall_args, *deps)
         else:
             cmd = PM_REMOVE_MAP.get(pm, "uninstall")
-            ret_code = run_process(executable, cmd, *uninstall_args, *deps)
+            ret_code = run_process(executable, *pm.split(" ")[1:], cmd, *uninstall_args, *deps)
     if ret_code != 0:
         print(f"{Fore.RED}{i18n_.project.uninstall_failed(deps=', '.join(deps), pm=pm)}{Fore.RESET}")
     return ret_code
