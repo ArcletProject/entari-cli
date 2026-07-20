@@ -62,6 +62,7 @@
                     "static",
                     "application",
                     "file",
+                    "role",
                     "disabled",
                     "optional",
                     "priority",
@@ -74,6 +75,7 @@
                   "types": [
                     "is_plugin_project",
                     "plugin_name",
+                    "humanize_name",
                     "plugin_version",
                     "plugin_description",
                     "plugin_author_name",

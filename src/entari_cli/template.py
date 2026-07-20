@@ -1,8 +1,10 @@
 PLUGIN_DEFAULT_TEMPLATE = """\
 from arclet.entari import metadata
+from arclet.entari.plugin import PluginRole
 
 metadata(
     name="{name}",
+    role=PluginRole.{role},
     author={author},
     version="{version}",
     description="{description}",
@@ -12,9 +14,11 @@ metadata(
 
 PLUGIN_STATIC_TEMPLATE = """\
 from arclet.entari import declare_static, metadata
+from arclet.entari.plugin import PluginRole
 
 metadata(
     name="{name}",
+    role=PluginRole.{role},
     author={author},
     version="{version}",
     description="{description}",
@@ -31,11 +35,16 @@ authors = [
     {author}
 ]
 dependencies = [
-    "arclet.entari[yaml,cron,reload,dotenv] >= {entari_version}",
+    "arclet-entari >= {entari_version}",
 ]
 requires-python = {python_requirement}
 readme = "README.md"
 license = {license}
+
+[dependency-groups]
+dev = [
+    "arclet-entari[yaml,cron,reload,dotenv] >= {entari_version}",
+]
 """
 
 WORKSPACE_PROJECT_TEMPLATE = """\
@@ -44,7 +53,7 @@ name = "entari-workspace"
 version = "0.0.0"
 description = ""
 dependencies = [
-    "arclet.entari[{extra}] >= {entari_version}",
+    "arclet-entari[{extra}] >= {entari_version}",
 ]
 requires-python = {python_requirement}
 """

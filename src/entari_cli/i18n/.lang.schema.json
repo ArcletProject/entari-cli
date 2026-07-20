@@ -170,6 +170,11 @@
                       "description": "value of lang item type 'file'",
                       "type": "string"
                     },
+                    "role": {
+                      "title": "role",
+                      "description": "value of lang item type 'role'",
+                      "type": "string"
+                    },
                     "disabled": {
                       "title": "disabled",
                       "description": "value of lang item type 'disabled'",
@@ -211,6 +216,11 @@
                     "plugin_name": {
                       "title": "plugin_name",
                       "description": "value of lang item type 'plugin_name'",
+                      "type": "string"
+                    },
+                    "humanize_name": {
+                      "title": "humanize_name",
+                      "description": "value of lang item type 'humanize_name'",
                       "type": "string"
                     },
                     "plugin_version": {

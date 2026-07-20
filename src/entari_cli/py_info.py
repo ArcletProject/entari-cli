@@ -338,7 +338,7 @@ spec = importlib.util.find_spec('{module}')
 if spec is None or spec.origin is None:
     print(json.dumps(None))
     exit(0)
-for dist in importlib.metadata.distributions(name="cli_lite"):
+for dist in importlib.metadata.distributions():
     relative_path = Path(spec.origin).relative_to(str(dist.locate_file(""))).as_posix()
     if relative_path in map(str, dist.files or []):
         break

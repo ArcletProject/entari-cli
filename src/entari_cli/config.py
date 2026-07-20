@@ -2,11 +2,13 @@ import json
 import os
 import re
 import warnings
-from collections.abc import Mapping
+from collections import defaultdict
+from collections.abc import Mapping, MutableMapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from importlib import import_module
 from io import StringIO
+from itertools import chain
 from pathlib import Path
 from typing import Any, Callable, ClassVar, TypeVar, Union
 
@@ -18,27 +20,6 @@ from tomlkit import dumps, loads
 
 from entari_cli import i18n_
 from entari_cli.utils import ask
-
-EXPR_CONTEXT_PAT = re.compile(r"['\"]?\$\{\{\s?(?P<expr>[^}\s]+)\s?\}\}['\"]?")
-T = TypeVar("T")
-
-
-_loaders: dict[str, Callable[[str], dict]] = {}
-_dumpers: dict[str, Callable[[dict, int, Union[str, None]], tuple[str, bool]]] = {}
-
-
-class GetattrDict:
-    def __init__(self, source: Mapping):
-        self._source = source
-
-    def __getitem__(self, item):
-        return self._source[item]
-
-    def __getattr__(self, item):
-        try:
-            return self._source[item]
-        except KeyError as e:
-            raise AttributeError(f"{item} not found") from e
 
 
 def load_env_with_environment(
@@ -115,40 +96,108 @@ def check_env(file: Path):
             f.write(f"\nENTARI_CONFIG_FILE='{file.resolve().as_posix()}'")
 
 
+class GetattrDict(Mapping):
+    def __init__(self, source: Mapping):
+        self._source = source
+
+    def __iter__(self):
+        return iter(self._source)
+
+    def __len__(self):
+        return len(self._source)
+
+    def __getitem__(self, item):
+        ans = self._source[item]
+        if isinstance(ans, Mapping):
+            return GetattrDict(ans)
+        return ans
+
+    def __getattr__(self, item):
+        try:
+            ans = self._source[item]
+        except KeyError:
+            return None
+        if isinstance(ans, Mapping):
+            return GetattrDict(ans)
+        return ans
+
+
+EXPR_CONTEXT_PAT = re.compile(r"\$\{\{\s?(?P<expr>[^}]+)\s?\}\}")
+T = TypeVar("T")
+T_M = TypeVar("T_M", bound=MutableMapping)
+
+
+_loaders: dict[str, Callable[[str], dict]] = {}
+_dumpers: dict[str, Callable[[dict, int, Union[str, None]], tuple[str, bool]]] = {}
+
+
+@dataclass(unsafe_hash=True)
+class _EnvReplaced:
+    parts: tuple[str, ...]
+    target: str
+    source: str
+
+
+def _iter_values(obj: dict[str, Any], transform: Callable[[Any, str, list[str]], Any], history: list[str]):
+    for k, v in obj.items():
+        obj[k] = transform(v, k, history + [k])
+    return obj
+
+
+def _interpolate(source: str, context: dict[str, Any], records: set[_EnvReplaced], history: list[str]):
+    def handle(m: re.Match[str]):
+        expr = m.group("expr")
+        expr, default = expr.partition(":-")[::2]
+        expr = expr.strip()
+        default = default.strip()
+        ans = safe_eval(expr, context)
+        records.add(_EnvReplaced(tuple(history), str(ans or default), m.group()))
+        return str(ans or default)
+
+    return re.sub(EXPR_CONTEXT_PAT, handle, source)
+
+
 @dataclass
 class EntariConfig:
     path: Path
     basic: dict[str, Any] = field(init=False)
-    plugin: dict[str, dict] = field(init=False)
-    prelude_plugin: list[str] = field(init=False)
-    plugin_extra_files: list[str] = field(init=False)
+    plugin: dict[str, dict] = field(default_factory=dict, init=False)
+    plugin_prefixes: dict[str, list[str]] = field(default_factory=dict, init=False)
+    prelude_plugin: list[str] = field(default_factory=list, init=False)
+    plugin_extra_files: list[str] = field(default_factory=list, init=False)
     save_flag: bool = field(default=False)
     env_vars: dict[str, str] = field(default_factory=dict)
+    _plugin_names: dict[str, list[str]] = field(default_factory=dict, init=False)
     _origin_data: dict[str, Any] = field(init=False)
-    _env_replaced: dict[str, dict[int, tuple[str, int]]] = field(default_factory=dict, init=False)
+    _records: dict[str, set[_EnvReplaced]] = field(default_factory=dict, init=False)
 
     instance: ClassVar["EntariConfig"]
+    _inited: ClassVar[bool] = False
 
-    def loader(self, path: Path):
+    def loader(self, path: Path) -> dict[str, Any]:
         if not path.exists():
             return {}
         end = path.suffix.split(".")[-1]
         if end in _loaders:
-            ctx = {"env": GetattrDict(os.environ)}
+            ctx = {"env": GetattrDict(self.env_vars)}
 
             with path.open("r", encoding="utf-8") as f:
-                lines = f.readlines()
-            for i, line in enumerate(lines):
+                data = _loaders[end](f.read())
 
-                def handle(m: re.Match[str]):
-                    expr = m.group("expr")
-                    ans = safe_eval(expr, ctx)
-                    self._env_replaced.setdefault(path.as_posix(), {})[i] = (line, len(ans.splitlines()))
-                    return ans
+            records = self._records.setdefault(path.as_posix(), set())
 
-                lines[i] = EXPR_CONTEXT_PAT.sub(handle, line)
-            text = "".join(lines)
-            return _loaders[end](text)
+            def _transform(value, key, history):
+                if isinstance(value, str):
+                    return _interpolate(value, ctx, records, history)
+                elif isinstance(value, dict):
+                    return _iter_values(value, _transform, history)
+                elif isinstance(value, list):
+                    for i, v in enumerate(value):
+                        value[i] = _transform(v, "", history + [f"${i}"])
+                return value
+
+            data = _iter_values(data, _transform, [])
+            return data
 
         raise ValueError(f"Unsupported file format: {path.suffix}")
 
@@ -163,14 +212,19 @@ class EntariConfig:
         if apply_schema:
             schema_file = f"{save_path.stem}.schema.json"
         if end in _dumpers:
+            if path.as_posix() in self._records:
+                for record in self._records[path.as_posix()]:
+                    data = origin
+                    parts = [
+                        int(part[1:]) if part.startswith("$") and part[1:].isdigit() else part for part in record.parts
+                    ]
+                    for part in parts[:-1]:
+                        data = data[part]
+                    value = data[parts[-1]]
+                    if isinstance(value, str):
+                        data[parts[-1]] = value.replace(record.target, record.source)
+
             ans, applied = _dumpers[end](origin, indent, schema_file)
-            if self._env_replaced:
-                lines = ans.splitlines(keepends=True)
-                for i, (line, height) in self._env_replaced[path.as_posix()].items():
-                    lines[i + applied] = line
-                    for _ in range(height - 2):
-                        lines.pop(i + applied + 1)
-                ans = "".join(lines)
             with save_path.open("w", encoding="utf-8") as f:
                 f.write(ans)
             return
@@ -178,6 +232,7 @@ class EntariConfig:
 
     def __post_init__(self):
         self.__class__.instance = self
+        self.__class__._inited = True
         self.reload()
 
     @property
@@ -186,30 +241,21 @@ class EntariConfig:
 
     @property
     def prelude_plugin_names(self) -> list[str]:
-        return [name for name in self.plugin_names if name in self.prelude_plugin]
+        return [
+            name
+            for key, names in self._plugin_names.items()
+            for name in names
+            if key in self.prelude_plugin or name in self.prelude_plugin
+        ]
 
     @property
     def plugin_names(self) -> list[str]:
-        slots = [
-            (name, self.plugin[name].get("$priority", 16))
-            for name in self.plugin
-            if not name.startswith("$") and not self.plugin[name].get("$optional", False)
-        ]
-        slots.sort(key=lambda x: x[1])
-        return [name for name, _ in slots]
+        return list(chain.from_iterable(self._plugin_names.values()))
 
-    def reload(self):
-        if self.save_flag:
-            self.save_flag = False
-            return False
-        data = self.loader(self.path)
-        if "entari" in data:
-            data = data["entari"]
-        self.basic = data.setdefault("basic", {})
-        self._origin_data = data
-        self.plugin = data.setdefault("plugins", {})
-        self.plugin_extra_files: list[str] = self.plugin.get("$files", [])  # type: ignore
+    def _reload_plugins(self):
+        self.plugin_extra_files = self.plugin.get("$files", [])  # type: ignore
         self.prelude_plugin = self.plugin.get("$prelude", [])  # type: ignore
+
         for key in list(self.plugin.keys()):
             if key.startswith("$"):
                 continue
@@ -222,21 +268,74 @@ class EntariConfig:
                 key = key[1:]
                 value["$optional"] = True
             self.plugin[key] = value
+        extra_plugins: dict[str, list[str]] = {}
         for file in self.plugin_extra_files:
             path = Path(file)
             if not path.exists():
                 raise FileNotFoundError(file)
+            _plugins = extra_plugins.setdefault(file, [])
             if path.is_dir():
                 for _path in path.iterdir():
                     if not _path.is_file() or _path.name.endswith(".schema.json"):
                         continue
                     self.plugin[_path.stem] = self.loader(_path)
+                    _plugins.append(_path.stem)
             elif path.name.endswith(".schema.json"):
                 self.plugin[path.stem] = self.loader(path)
+                _plugins.append(path.stem)
+
+        plugin_prefixes = {}
+        for item in self.plugin.get("$prefix", []):  # type: ignore
+            if "key" not in item or "plugins" not in item:
+                continue
+            _prefixes = plugin_prefixes.setdefault(item["key"], [])
+            if isinstance(item["plugins"], list):
+                _prefixes.extend(item["plugins"])
+            elif isinstance(item["plugins"], str) and item["plugins"] in extra_plugins:
+                _prefixes.extend(extra_plugins[item["plugins"]])
+        inverted = defaultdict(list)
+        for key, plugs in plugin_prefixes.items():
+            for plug in plugs:
+                inverted[plug].append(key)
+        self.plugin_prefixes = dict(inverted)
+
+        slots = [
+            (name, self.plugin[name].get("$priority", 16))
+            for name in self.plugin
+            if not name.startswith("$") and not self.plugin[name].get("$optional", False)
+        ]
+        slots.sort(key=lambda x: x[1])
+        ans: defaultdict[str, list[str]] = defaultdict(list)
+        for name, _ in slots:
+            if (prefixes := self.plugin_prefixes.get(name)) is not None:
+                ans[name].extend((f"{prefix}{name}" if prefix else name) for prefix in prefixes)
+            elif name.count(".") or name.startswith("::") or name.startswith("entari_plugin_"):
+                ans[name].append(name)
+            else:
+                ans[name].append(f"entari_plugin_{name}")
+        self._plugin_names = dict(ans)
+
+    def reload(self):
+        if self.save_flag:
+            self.save_flag = False
+            return False
+        data = self.loader(self.path)
+        if "entari" in data:
+            data = data["entari"]
+        self.basic = data.setdefault("basic", {})
+        self._origin_data = data
+        self.plugin = data.setdefault("plugins", {})
+        self._reload_plugins()
         return True
 
-    def dump(self, indent: int = 2, apply_schema: bool = False):
-        basic = self._origin_data.setdefault("basic", {})
+    @staticmethod
+    def _clean(value: T_M) -> T_M:
+        value.pop("$path", None)
+        value.pop("$static", None)
+        return value
+
+    def dump(self, indent: int = 2, apply_schema: bool = False) -> dict[str, Any]:
+        basic = self._origin_data.get("basic", {})
         if "log" not in basic and ("log_level" in basic or "log_ignores" in basic):
             basic["log"] = {}
             if "log_level" in basic:
@@ -244,18 +343,15 @@ class EntariConfig:
             if "log_ignores" in basic:
                 basic["log"]["ignores"] = basic.pop("log_ignores")
 
-        def _clean(value: dict):
-            return {k: v for k, v in value.items() if k not in {"$path", "$static"}}
-
         if self.plugin_extra_files:
             for file in self.plugin_extra_files:
                 path = Path(file)
                 if path.is_file() and not path.name.endswith(".schema.json"):
-                    self.dumper(path, path, _clean(self.plugin.pop(path.stem)), indent, apply_schema)
+                    self.dumper(path, path, self._clean(self.plugin.pop(path.stem)), indent, apply_schema)
                 else:
                     for _path in path.iterdir():
                         if _path.is_file() and not _path.name.endswith(".schema.json"):
-                            self.dumper(_path, _path, _clean(self.plugin.pop(_path.stem)), indent, apply_schema)
+                            self.dumper(_path, _path, self._clean(self.plugin.pop(_path.stem)), indent, apply_schema)
         for key in list(self.plugin.keys()):
             if key.startswith("$"):
                 continue
@@ -266,7 +362,7 @@ class EntariConfig:
             if "$optional" in value:
                 key = f"?{key}" if value["$optional"] else key
                 value.pop("$optional", None)
-            self.plugin[key] = _clean(value)
+            self.plugin[key] = self._clean(value)
         return self._origin_data
 
     def save(self, path: Union[str, os.PathLike[str], None] = None, indent: int = 2, apply_schema: bool = False):

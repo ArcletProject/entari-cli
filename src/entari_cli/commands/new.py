@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from typing import Literal
 
 import tomlkit
 from arclet.alconna import Alconna, Args, Arparma, CommandMeta, MultiVar, Option
@@ -36,10 +37,14 @@ class NewPlugin(BasePlugin):
     def init(self):
         return Alconna(
             "new",
-            Args["name/?", str],
             Option("-S|--static", help_text=i18n_.commands.new.options.static()),
             Option("-A|--application", help_text=i18n_.commands.new.options.application()),
             Option("-f|--file", help_text=i18n_.commands.new.options.file()),
+            Option(
+                "-rl|--role",
+                Args["role/", Literal["normal", "library", "utility", "complex"]],
+                help_text=i18n_.commands.new.options.role(),
+            ),
             Option("-D|--disabled", help_text=i18n_.commands.new.options.disabled()),
             Option("-O|--optional", help_text=i18n_.commands.new.options.optional()),
             Option("-p|--priority", Args["num/", int], help_text=i18n_.commands.new.options.priority()),
@@ -76,9 +81,7 @@ class NewPlugin(BasePlugin):
             if not is_application and (toml_path.exists() or cwd.resolve() != Path.cwd().resolve()):
                 return f"{Fore.RED}{i18n_.commands.new.messages.proj_exists()}{Fore.RESET}"
 
-            name = result.query[str]("new.name")
-            if not name:
-                name = ask(i18n_.commands.new.prompts.plugin_name(), None if is_application else cwd.name)
+            name = ask(i18n_.commands.new.prompts.plugin_name(), None if is_application else cwd.name)
             if not validate_project_name(name):
                 return f"{Fore.RED}{i18n_.commands.new.messages.invalid(name=repr(name))}{Fore.RESET}"
             proj_name = sanitize_project_name(name).replace(".", "-").replace("_", "-")
@@ -88,6 +91,7 @@ class NewPlugin(BasePlugin):
                     f"{Fore.YELLOW}{i18n_.commands.new.messages.keep(opt=f'{Fore.MAGENTA}-A|--application')}{Fore.RESET}"
                 )
                 proj_name = f"entari-plugin-{proj_name}"
+            humanize_name = ask(i18n_.commands.new.prompts.humanize_name(), proj_name)
             file_name = proj_name.replace("-", "_")
             version = ask(i18n_.commands.new.prompts.plugin_version(), "0.1.0")
             description = ask(i18n_.commands.new.prompts.plugin_description())
@@ -101,7 +105,7 @@ class NewPlugin(BasePlugin):
                 readme_path = Path.cwd() / "README.md"
                 if not readme_path.exists():
                     with readme_path.open("w+", encoding="utf-8") as f:
-                        f.write(README_TEMPLATE.format(name=proj_name, description=description))
+                        f.write(README_TEMPLATE.format(name=humanize_name, description=description))
 
                 with toml_path.open("w+", encoding="utf-8") as f:
                     f.write(
@@ -173,7 +177,8 @@ class NewPlugin(BasePlugin):
                 t = PLUGIN_STATIC_TEMPLATE if is_static else PLUGIN_DEFAULT_TEMPLATE
                 f.write(
                     t.format(
-                        name=proj_name,
+                        name=humanize_name,
+                        role=result.query[str]("new.role.role", "normal").upper(),
                         author=f'[{{"name": "{author}", "email": "{email}"}}]',
                         version=version,
                         description=description,

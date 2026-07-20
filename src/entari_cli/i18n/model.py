@@ -45,6 +45,7 @@ class EntariCliCommandsNewOptions:
     static: LangItem = LangItem("entari_cli", "commands.new.options.static")
     application: LangItem = LangItem("entari_cli", "commands.new.options.application")
     file: LangItem = LangItem("entari_cli", "commands.new.options.file")
+    role: LangItem = LangItem("entari_cli", "commands.new.options.role")
     disabled: LangItem = LangItem("entari_cli", "commands.new.options.disabled")
     optional: LangItem = LangItem("entari_cli", "commands.new.options.optional")
     priority: LangItem = LangItem("entari_cli", "commands.new.options.priority")
@@ -55,6 +56,7 @@ class EntariCliCommandsNewOptions:
 class EntariCliCommandsNewPrompts:
     is_plugin_project: LangItem = LangItem("entari_cli", "commands.new.prompts.is_plugin_project")
     plugin_name: LangItem = LangItem("entari_cli", "commands.new.prompts.plugin_name")
+    humanize_name: LangItem = LangItem("entari_cli", "commands.new.prompts.humanize_name")
     plugin_version: LangItem = LangItem("entari_cli", "commands.new.prompts.plugin_version")
     plugin_description: LangItem = LangItem("entari_cli", "commands.new.prompts.plugin_description")
     plugin_author_name: LangItem = LangItem("entari_cli", "commands.new.prompts.plugin_author_name")

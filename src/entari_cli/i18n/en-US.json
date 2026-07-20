@@ -38,12 +38,14 @@
           "disabled": "Whether the plugin is initially disabled",
           "optional": "Whether to store only the plugin configuration without loading the plugin",
           "priority": "Plugin loading priority",
+          "role": "Plugin role/function positioning",
           "python": "Specify the Python version/path to use",
           "install_args": "Extra parameters for installation command passed to the package manager"
         },
         "prompts": {
           "is_plugin_project": "Is this an Entari-Plugin Project?",
           "plugin_name": "Plugin name",
+          "humanize_name": "Plugin title (humanized name)",
           "plugin_version": "Plugin version",
           "plugin_description": "Plugin description",
           "plugin_author_name": "Plugin author name",

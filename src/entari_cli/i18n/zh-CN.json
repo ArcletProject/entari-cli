@@ -37,6 +37,7 @@
           "file": "是否为单文件插件",
           "disabled": "是否插件初始禁用",
           "optional": "是否仅存储插件配置而不加载插件",
+          "role": "插件角色/功能定位",
           "priority": "插件加载优先级",
           "python": "指定 Python 解释器版本/路径",
           "install_args": "传递给包管理器的安装指令的额外参数"
@@ -44,6 +45,7 @@
         "prompts": {
           "is_plugin_project": "这是一个 Entari 插件项目(即独立插件)吗？",
           "plugin_name": "插件名称",
+          "humanize_name": "插件标题 (个性化名称)",
           "plugin_version": "插件版本",
           "plugin_description": "插件描述",
           "plugin_author_name": "插件作者姓名",
